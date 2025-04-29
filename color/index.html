@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS RGBA Color Blender</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="base.css">
+    <script src="blend.js"></script>
+    <script>
+        fetch('../assets/nav.html')
+            .then(r => r.text())
+            .then(t => {
+                const temp = document.createElement('div');
+                temp.innerHTML = t.replaceAll('__HOME__', '..');
+                nav.innerHTML = temp.innerHTML;
+                nav.querySelector(`a[href="../color/index.html"]`)?.classList.add('activeTab');
+            });
+    </script>
+</head>
+<body>
+    <nav id="nav" class="nav"></nav> <!-- End (div class="nav") -->
+    <div class="body">
+        <div id="tool">
+            <div id="controls">
+                <div class="switches">
+                    <div class="toggle-switch">
+                        <button id="outputCalc" class="toggle-button active">Output</button>
+                        <button id="overlayCalc" class="toggle-button">Overlay</button>
+                    </div>
+                    <button id="showBaseButton" class="latching-button">Show Base</button>
+                    <div id="targetAInput" class="hidden">
+                        <span class="alpha-label">α:&nbsp;</span> 
+                        <input type="text" id="targetA" class="rgbInput" min="0" max="1" step="0.01">
+                    </div>
+                </div>
+                <fieldset id="base" class="inputModule">
+                    <legend>Base Color:</legend>
+                    <div class="colorInput">
+                        <div class="rgb">
+                            <label class="rgbLabel">R: <input type="number" id="baseR" class="rgbInput" min="0" max="255" value="255"></label>
+                            <label class="rgbLabel">G: <input type="number" id="baseG" class="rgbInput" min="0" max="255" value="255"></label>
+                            <label class="rgbLabel">B: <input type="number" id="baseB" class="rgbInput" min="0" max="255" value="255"></label>
+                        </div>
+                        <label class="hexLabel">HEX:&nbsp;<input type="text" id="baseColor" class="hexInput" value="#FFFFFF" maxlength="9"></label>
+                    </div>
+                    <div id="basePreview" class="inputPreview"></div>
+                </fieldset>
+                <fieldset id="overlay" class="inputModule">
+                    <legend>Overlay Color:</legend>
+                    <div class="colorInput">
+                        <div class="rgb">
+                            <label class="rgbLabel">R: <input type="number" id="overlayR" class="rgbInput" min="0" max="255"></label>
+                            <label class="rgbLabel">G: <input type="number" id="overlayG" class="rgbInput" min="0" max="255"></label>
+                            <label class="rgbLabel">B: <input type="number" id="overlayB" class="rgbInput" min="0" max="255"></label>
+                            <label class="rgbLabel">A: <input type="number" id="overlayA" class="rgbInput" min="0" max="1" step="0.01"></label>
+
+                        </div>
+                        <label class="hexLabel">HEX:&nbsp;<input type="text" id="overlayColor" class="hexInput" placeholder="#rrggbb or #rrggbbaa" maxlength="9"></label>
+                    </div>
+                    <div id="overlayPreview" class="inputPreview"></div>
+                </fieldset>
+                <fieldset id="desired" class="inputModule hidden">
+                    <legend>Desired Color:</legend>
+                    <div class="colorInput">
+                        <div class="rgb">
+                            <label class="rgbLabel">R: <input type="number" id="desiredR" class="rgbInput" min="0" max="255" value="255"></label>
+                            <label class="rgbLabel">G: <input type="number" id="desiredG" class="rgbInput" min="0" max="255" value="255"></label>
+                            <label class="rgbLabel">B: <input type="number" id="desiredB" class="rgbInput" min="0" max="255" value="255"></label>
+                        </div>
+                        <label class="hexLabel">HEX:&nbsp;<input type="text" id="desiredColor" class="hexInput" value="#FFFFFF" maxlength="9"></label>
+                    </div>
+                    <div id="desiredPreview" class="inputPreview"></div>
+                </fieldset>
+            </div>
+            <div id="output">
+                <div id="errorMessage" class="hiddenError"></div>
+                <div class="colorBox">
+                    <div id="baseColorPreview" class="hiddenBasePreview"></div>
+                    <div id="outputColorPreview"></div>
+                </div>
+                <div id="outputColorTextBox">
+                    <div id="outputColorOverlay">
+                        <div id="hexOutput" class="outputText">
+                            <div id="hexOutputText" class=copyText></div>
+                            <div id="hexOutputCopied" class="copiedText">Copied <i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div id="RGBAOutput" class="outputText">
+                            <div id="RGBAOutputText" class=copyText></div>
+                            <div id="RGBAOutputCopied" class="copiedText">Copied <i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="help">
+            <div id="output-help">
+                <h2>Instructions</h2>
+                <ol>
+                    <li>Enter the <strong>Base Color</strong> (<code>RGB</code> or <code>#RRGGBB</code>)
+                    <li>Enter the <strong>Overlay Color</strong> (<code>RGBA</code> or <code>#RRGGBBAA</code>)
+                </ol>
+
+                <h3>Notes:</h3>
+                <ul>
+                    <li>You can click on the HEX or RGB(A) values in the output window to copy them to your clipboard.</li>
+                    <li>You can click on the <strong>Show Base</strong> button to view the base and the final color side to side.</li>
+                    <li>The alpha channel should be a value between <code>0</code> (fully transparent) and <code>1</code> (fully opaque).</li>
+                    <li>If no alpha is provided, it is assumed to have a value of <code>1</code> (fully opaque).</li>
+                    <li>Colors are automatically clamped between 0 and 255.</li>
+                </ul>
+            </div>
+            <div id="overlay-help" class="hidden">
+                <h2>Instructions</h2>
+                <ol>
+                    <li>Enter the <strong>Base Color</strong> (<code>RGB</code> or <code>#RRGGBB</code>).</li>
+                    <li>Enter the <strong>Desired Color</strong> (<code>RGB</code> or <code>#RRGGBB</code>). This is the color you want to have after applying the overlay.</li>
+                    <li>Enter the your desired Alpha value <strong>α</strong>.<br>This should be a decimal value between <code>0</code> and <code>1</code> or a hex value between <code>00</code> and <code>FF</code>.</li>
+                </ol>
+
+                <h3>Notes:</h3>
+                <ul>
+                    <li>You can click on the HEX or RGB(A) values in the output window to copy them to your clipboard.</li>
+                    <li>Not all Alpha values are valid for your specific value pair.<br>You can see the valid alpha range by hovering your mouse over the alpha input box</li>
+                    <li>The generated output values may be off by 1 due to rounding errors.</li>
+                    <li>If no alpha is provided, it is assumed to have a value of <code>1</code> (fully opaque).</li>
+                    <li>Colors are automatically clamped between 0 and 255.</li>
+                </ul>
+            </div>
+        </div>
+    </div> <!-- End (div class="body") -->
+    <div class="footer"></div> <!-- End (div class="footer") -->
+</body>
+</html>
