@@ -77,9 +77,15 @@ function findOverlay() {
                               componentToHex(Math.ceil(lowerBound * 255)).toUpperCase() + 
                               ") and 1 (FF) for this base and target color pair.";
         document.getElementById('errorMessage').classList.remove('hiddenError');
+        document.getElementById('outputColorOverlay').classList.add('invalidResultBackground');
+        document.getElementById('hexOutput').classList.add('invalidResult');
+        document.getElementById('RGBAOutput').classList.add('invalidResult');
         return;
     } else {
         document.getElementById('errorMessage').classList.add('hiddenError');
+        document.getElementById('outputColorOverlay').classList.remove('invalidResultBackground');
+        document.getElementById('hexOutput').classList.remove('invalidResult');
+        document.getElementById('RGBAOutput').classList.remove('invalidResult');
     }
 
     const r = Math.round((target.r - base.r * (1 - alpha)) / alpha);
@@ -316,6 +322,9 @@ document.addEventListener("DOMContentLoaded", () => {
         outputHelp.classList.remove('hidden');
         overlayHelp.classList.add('hidden');
         document.getElementById('errorMessage').classList.add('hiddenError');
+        document.getElementById('outputColorOverlay').classList.remove('invalidResultBackground');
+        document.getElementById('hexOutput').classList.remove('invalidResult');
+        document.getElementById('RGBAOutput').classList.remove('invalidResult');
         blendColors();
     });
     

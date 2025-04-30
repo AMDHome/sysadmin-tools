@@ -18,11 +18,12 @@ body {
 }
 
 nav {
-    padding: 12px;
-    height: 40px;
+    padding: 12px 15px;
+    height: 64px;
     width: 100%;
     flex-grow: 0;
     background: #fafafa;
+    box-sizing: border-box;
 }
 
 label {
@@ -40,17 +41,12 @@ strong {
 }
 
 code {
-  font-family: monospace;
-  background-color: #ccc;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.95em;
-}
-
-li {
-    font-weight: 500;
-    font-size: 14px;
+    font-family: monospace;
+    background-color: #ccc;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
 }
 
 .hiddenBasePreview {
@@ -69,11 +65,22 @@ li {
 }
 
 .body {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: center;
     align-items: center;
+    flex-grow: 0;
+}
+
+#spacer-top {
+    width: 100%;
+    height: 21%;
+    flex-shrink: 1;
+}
+
+#spacer-bottom {
+    height: 10%;
+    flex-shrink: 1;
 }
 
 #tool {
@@ -93,29 +100,39 @@ li {
 }
 
 .toggle-switch {
-  display: inline-flex;
-  background-color: #f3f4f6; /* light gray background */
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #d1d5db; /* optional subtle border */
+    display: inline-flex;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #d1d5db;
 }
 
 .toggle-button {
-  padding: 8px 16px;
-  background: #ddd;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  color: #6b7280; /* gray text */
-  transition: background-color 0.3s, color 0.3s;
+    padding: 8px 16px;
+    background: #ddd;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #6b7280;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.toggle-button:hover {
+    background-color: #c8c8c8;
+    border-color: #b8bec6;
 }
 
 .toggle-button.active {
-  background-color: #ffffff; /* white background for active */
-  color: black; /* darker text for active */
-  font-weight: 600;
+    background-color: #ffffff;
+    color: black;
+    font-weight: 600;
+}
+
+.toggle-button.active:hover {
+    background-color: #f0f0f0;
+    border-color: #b8bec6;
 }
 
 .latching-button {
@@ -126,13 +143,25 @@ li {
     background-color: #ddd;
     border: none;
     border-radius: 5px;
+    border: 1px solid #d1d5db;
     transition: background-color 0.3s;
-    width: 110px;
+    width: 112px;
+}
+
+.latching-button:hover {
+    background-color: #c8c8c8
+    border-color: #b8bec6;
 }
 
 .latching-button.active {
-    background-color: #4CAF50; /* green when active */
+    background-color: #437FCA;
+    border-color: #3a6eb7;
     color: white;
+}
+
+.latching-button.active:hover {
+    background-color: #376FB8;
+    border-color: #2f5fa2;
 }
 
 .alpha-label {
@@ -277,6 +306,14 @@ input {
     justify-content: space-between;
 }
 
+.invalidResultBackground {
+    background-color: #ffeeeedd !important;
+}
+
+.invalidResult {
+    color: #F00 !important;
+}
+
 .copyText {
     cursor: pointer;
 }
@@ -298,8 +335,14 @@ input {
 .help {
     align-self: flex-start;
     overflow-wrap: break-word;
-    margin: 5px 10px 4vh;
-    min-height: 326px;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    max-width: 725px;
+}
+
+.help li {
+    font-weight: 400;
+    font-size: 16px;
 }
 
 @media (max-width: 720px) {
@@ -327,7 +370,20 @@ input {
     }
 
     .help {
-        margin: 10px 25px;
+        padding: 10px 25px;
+    }
+}
+
+@media (max-height: 825px) {
+    #spacer-top {
+        height: 22%;
     }
 
+    #spacer-bottom {
+        height: 27%;
+    }
+
+    .help {
+        display: none;
+    }
 }

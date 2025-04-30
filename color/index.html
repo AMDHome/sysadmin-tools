@@ -19,8 +19,9 @@
     </script>
 </head>
 <body>
-    <nav id="nav" class="nav"></nav> <!-- End (div class="nav") -->
+    <nav id="nav"></nav> <!-- End (div class="nav") -->
     <div class="body">
+        <div id="spacer-top"></div>
         <div id="tool">
             <div id="controls">
                 <div class="switches">
@@ -115,19 +116,19 @@
                 <ol>
                     <li>Enter the <strong>Base Color</strong> (<code>RGB</code> or <code>#RRGGBB</code>).</li>
                     <li>Enter the <strong>Desired Color</strong> (<code>RGB</code> or <code>#RRGGBB</code>). This is the color you want to have after applying the overlay.</li>
-                    <li>Enter the your desired Alpha value <strong>α</strong>.<br>This should be a decimal value between <code>0</code> and <code>1</code> or a hex value between <code>00</code> and <code>FF</code>.</li>
+                    <li>Enter the your desired Alpha value <strong>α</strong>.This should be a decimal value between <code>0</code> and <code>1</code> or a hex value between <code>00</code> and <code>FF</code>.</li>
                 </ol>
 
                 <h3>Notes:</h3>
                 <ul>
                     <li>You can click on the HEX or RGB(A) values in the output window to copy them to your clipboard.</li>
-                    <li>Not all Alpha values are valid for your specific value pair.<br>You can see the valid alpha range by hovering your mouse over the alpha input box</li>
-                    <li>The generated output values may be off by 1 due to rounding errors.</li>
+                    <li>Not all Alpha values are valid for your specific color pair.You can see the valid alpha range by hovering your mouse over the alpha input box</li>
+                    <li>The generated output values may be off by 1 due to rounding errors. You can use the output calculator to verify.</li>
                     <li>If no alpha is provided, it is assumed to have a value of <code>1</code> (fully opaque).</li>
-                    <li>Colors are automatically clamped between 0 and 255.</li>
                 </ul>
             </div>
-        </div>
+        </div> <!-- End (div class="help") -->
+        <div id="spacer-bottom"></div>
     </div> <!-- End (div class="body") -->
     <div class="footer"></div> <!-- End (div class="footer") -->
 </body>
