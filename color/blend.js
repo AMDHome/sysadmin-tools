@@ -46,8 +46,8 @@ function normalizeAlpha(alpha) {
     if (parts.length > 2) alpha = parts[0] + '.' + parts.slice(1).join('');
 
     // Normalize Alpha to Decimal
-    if (alpha === '') {
-        alpha = 0;
+    if (alpha === '' || alpha === '1') {
+        alpha = 1;
     } else if (alpha.includes('.')) {
         const parsed = parseFloat(alpha);
         alpha = Math.min(Math.max(isNaN(parsed) ? 0 : parsed, 0), 1);
@@ -207,10 +207,13 @@ function updateRgbFromHex(prefix) {
 
 // Attach listeners
 function attachListeners(prefix) {
-    ["R", "G", "B", "A"].forEach(channel => 
- {       const input = document.getElementById(prefix + channel);
+    ["R", "G", "B"].forEach(channel => {
+        const input = document.getElementById(prefix + channel);
         if (input) {
-            input.addEventListener("input", () => updateHexFromRgb(prefix));
+            input.addEventListener("input", () => {
+                input.value = Math.min(255, parseInt(input.value.replace(/\D/g, '') || '0', 10));
+                updateHexFromRgb(prefix);
+            });
         }
     });
 
@@ -229,22 +232,25 @@ function randomizeFieldset(prefix) {
     updateHexFromRgb(prefix); // Update overlayColor hex field too!
 }
 
-function sanitizeAlpha(input) {
+function sanitizeTargetAlpha(input) {
     const inputValue = input.value;
     const inputCursor = input.selectionStart;
     
     let sanitizedValue = '';
     let hasDecimal = false;
-    let hasLetter = false;
     
     for (let i = 0; i < inputValue.length; i++) {
         let char = inputValue[i];
+
+        if (sanitizedValue.length === 2 && !sanitizedValue.includes('.')) {
+            input.value = sanitizedValue;
+            return;
+        }
     
+        // Allow letters only if input does not have a decimal, is less than 2
         if (/[a-fA-F]/.test(char)) {
-            // Allow letters only if input is empty or already has a letter
-            if (i === 0 || hasLetter) {
+            if (i < 2 && !hasDecimal) {
                 sanitizedValue += char;
-                hasLetter = true;
             }
         } else if (/[0-9]/.test(char)) {
             sanitizedValue += char;
@@ -265,6 +271,10 @@ function sanitizeAlpha(input) {
         input.value = sanitizedValue;
         input.setSelectionRange(inputCursor - diff, inputCursor - diff);
     }
+
+    if (sanitizedValue[0] === "0" || sanitizedValue[0] === "1" || sanitizedValue.length > 1) {
+        findOverlay();
+    }
 }
 
 function showCopyMessage(id) {
@@ -283,6 +293,20 @@ document.addEventListener("DOMContentLoaded", () => {
     randomizeFieldset("overlay");
     randomizeFieldset("desired");
 
+    const overlayA = document.getElementById("overlayA")
+    overlayA.addEventListener("input", () => {
+        let val = overlayA.value.replace(/[^0-9.]/g, '');
+        if (val === '0') { updateHexFromRgb("overlay"); return; }
+
+        const parts = val.split('.');
+        if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+
+        let num = parseFloat(val);
+        overlayA.value = isNaN(num) ? '' : Math.min(Math.max(num, 0), 1);
+
+        updateHexFromRgb("overlay");
+    });
+
     // Randomize Target
     document.getElementById("targetA").value = (Math.random()).toFixed(2);
 
@@ -300,8 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const overlayHelp = document.getElementById('overlay-help');
 
     targetAlphaInput.addEventListener('input', (event) => {
-        sanitizeAlpha(event.target);
-        findOverlay();
+        sanitizeTargetAlpha(event.target);
     });
 
     showBaseButton.addEventListener("click", () => {
