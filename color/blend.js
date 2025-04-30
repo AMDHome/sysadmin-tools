@@ -66,16 +66,16 @@ function findOverlay() {
     const alpha = normalizeAlpha(targetAlpha.value);
 
     const lowerBound = calculateLowerBounds(base, target);
-    targetAlpha.title = "Alpha must be between " + Math.round(lowerBound * 1000000) / 1000000 + 
+    targetAlpha.title = "Alpha must be between " + Math.round(lowerBound * 10000) / 10000 + 
                         " (" + componentToHex(Math.ceil(lowerBound * 255)).toUpperCase() + 
                         ") and 1 (FF) for this color pair";
 
     if (alpha < lowerBound) {
         const errorBox = document.getElementById('errorMessage')
-        errorBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Warning. Alpha must be between ' +
-                              Math.round(lowerBound * 1000000) / 1000000 + " (" + 
+        errorBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Warning:<br>Alpha must be between ' +
+                              Math.round(lowerBound * 10000) / 10000 + " (" + 
                               componentToHex(Math.ceil(lowerBound * 255)).toUpperCase() + 
-                              ") and 1 (FF) for this base and target color pair.";
+                              ") - 1 (FF) for this base and target color pair.";
         document.getElementById('errorMessage').classList.remove('hiddenError');
         document.getElementById('outputColorOverlay').classList.add('invalidResultBackground');
         document.getElementById('hexOutput').classList.add('invalidResult');
@@ -113,7 +113,7 @@ function findOverlay() {
         rgbaText.style.color = "black";
     }
     document.getElementById("hexOutputText").textContent = `${overlay}`;
-    document.getElementById("RGBAOutputText").textContent = `rgb(${r}, ${g}, ${b}, ${Math.round(alpha * 1000000) / 1000000})`;
+    document.getElementById("RGBAOutputText").textContent = `rgb(${r}, ${g}, ${b}, ${Math.round(alpha * 10000) / 10000})`;
 }
 
 
