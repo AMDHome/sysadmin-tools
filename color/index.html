@@ -14,7 +14,7 @@
                 const temp = document.createElement('div');
                 temp.innerHTML = t.replaceAll('__HOME__', '..');
                 nav.innerHTML = temp.innerHTML;
-                nav.querySelector(`a[href="../color/index.html"]`)?.classList.add('activeTab');
+                nav.querySelector(`li>a[href="../color/index.html"]`)?.classList.add('activeTab');
             });
     </script>
 </head>

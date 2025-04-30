@@ -19,7 +19,7 @@ body {
 
 nav {
     padding: 12px 15px;
-    height: 64px;
+    margin-bottom: 4px;
     width: 100%;
     flex-grow: 0;
     background: #fafafa;
