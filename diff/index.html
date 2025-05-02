@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Diff Checker</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="diff.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script type="module" src="codemirror.js"></script>
+    <script type="module" src="diff.js"></script>
+    <script>
+        fetch('../assets/nav.html')
+            .then(r => r.text())
+            .then(t => {
+                const temp = document.createElement('div');
+                temp.innerHTML = t.replaceAll('__HOME__', '..');
+                nav.innerHTML = temp.innerHTML;
+                nav.querySelector(`li>a[href="../diff/index.html"]`)?.classList.add('activeTab');
+            });
+    </script>
+</head>
+<body>
+    <nav id="nav"></nav> <!-- End (div class="nav") -->
+    <div class="body">
+        <div id="sidebar">sidebar</div>
+        <div id="tool">
+            <div id="tool-menu">
+                <div class="menu-title">
+                    <label>Diff Tool</label>
+                </div>
+                <div class="menu-buttons">
+                    <button id="run-diff" type="button">Get Text</button>
+                </div>
+            </div>
+            <div id="tool-content">
+                <div id="left-editor" class="editor">
+                    <div id="left-menu" class="editor-menu">
+                        <div class="menu-title">
+                            <label>Original Text</label>
+                        </div>
+                        <div class="menu-buttons"></div>
+                    </div>
+                    <div id="left-container" class="cm-instance"></div>
+                </div>
+                <div class="editor-spacer"></div>
+                <div id="right-editor" class="editor">
+                    <div id="right-menu" class="editor-menu">
+                        <div class="menu-title">
+                            <label>Changed Text</label>
+                        </div>
+                        <div class="menu-buttons"></div>
+                    </div>
+                    <div id="right-container" class="cm-instance"></div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End (div class="body") -->
+    <div class="footer"></div> <!-- End (div class="footer") -->
+</body>
+</html>

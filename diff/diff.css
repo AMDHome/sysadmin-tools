@@ -1,0 +1,123 @@
+/* diff.css */
+/* Diff Editor CSS Start */
+#run-diff {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#run-diff:hover {
+    background-color: #0056b3;
+}
+
+#tool-content {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 15px;
+}
+
+.editor {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.editor-spacer {
+    width: 25px;
+}
+
+.editor-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 32px;
+}
+
+.editor-menu>.menu-title>label {
+    font-size: 14px;
+    font-weight: 600;
+}
+/* Diff Editor CSS End */
+
+/* Diff Results & cm6 CSS Start */
+.cm-instance {
+    height: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.cm-editor {
+    height: 100%;
+}
+
+.cm-gutter {
+    font-family: monospace;
+    min-width: calc(1ch * 5);
+}
+
+.line-deleted {
+    background-color: #FA9B9B33;
+}
+
+.line-deleted.cm-activeLine {
+    background-color: #F7636340;
+}
+
+.line-inserted {
+    background-color: #7DE1BE33;
+}
+
+.line-inserted.cm-activeLine {
+    background-color: #1BCB8B40;
+}
+
+.line-empty {
+    background-color: #B4B4BE33;
+}
+
+.line-empty.cm-activeLine {
+    background-color: #9B9BA740;
+}
+
+.word-deleted {
+    background-color: #E73D3F80;
+    padding: 0 1px;
+    border-radius: 2px;
+}
+
+.word-inserted {
+    background-color: #05B97F80;
+    padding: 0 1px;
+    border-radius: 2px;
+}
+
+.cm-selectionMatch {
+    background-color: #11111111 !important;
+    border-radius: 2px;
+    border: 1px dotted #888;
+    box-sizing: border-box
+}
+
+/* Diff Results CSS End */
+
+
+
+
+
+.footer {
+    position: sticky;
+}
