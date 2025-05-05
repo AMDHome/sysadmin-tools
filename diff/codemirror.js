@@ -49,14 +49,32 @@ function createDiffPlugin(side) {
             for (const tr of update.transactions) {
                 for (const effect of tr.effects) {
                     if (effect.is(setDiffEffect)) {
+                        this.decorations = Decoration.none;
                         const computedDeco = buildDecorations(update.view, effect.value.diffResult, this.side);
                         this.decorations = computedDeco.decorations;
                         this.paddedLines = computedDeco.paddedLines;
+                        return;
                     }
                 }
             }
-            if (update.docChanged) {
-                this.decorations = Decoration.none;
+            if (this.decorations !== Decoration.none && update.docChanged) {
+                this.decorations = this.decorations.map(update.changes);
+                const doc = update.state.doc;
+                const dirtyDecos = [];
+
+                update.changes.iterChanges((fromA, toA, fromB, toB) => {
+                    const startLine = doc.lineAt(fromB).number;
+                    const endLine = doc.lineAt(toB).number;
+
+                    for (let i = startLine; i <= endLine; i++) {
+                        const line = update.state.doc.line(i);
+                        dirtyDecos.push(Decoration.line({ class: "line-dirty" }).range(line.from));
+                    }
+                });
+
+                if (dirtyDecos.length) {
+                    this.decorations = this.decorations.update({ add: dirtyDecos });
+                }
             }
         }
     }, {

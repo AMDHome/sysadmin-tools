@@ -93,6 +93,14 @@
     background-color: #9B9BA740;
 }
 
+.line-dirty {
+    background-color: #FFD34440;
+}
+
+.line-dirty.cm-activeLine {
+    background-color: #FFCD2B66;
+}
+
 .word-deleted {
     background-color: #E73D3F80;
     padding: 0 1px;

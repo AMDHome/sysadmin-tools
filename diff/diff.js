@@ -154,15 +154,22 @@ function unBalanceDocs(decoPlugin, doc) {
     };
 
     const toExclude = new Set();
+    const dirtyLines = new Set();
 
+    // Find all empty lines
     decorations.between(0, doc.length, (from, to, deco) => {
-        if (deco.spec.class === "line-empty") {
-            const line = doc.lineAt(from).number;
+        const line = doc.lineAt(from).number;
+        if (deco.spec.class === "line-empty" && !dirtyLines.has(line)) {
             toExclude.add(line);
+        }
+
+        if (deco.spec.class === "line-dirty") {
+            dirtyLines.add(line);
+            toExclude.delete(line);
         }
     });
 
-    // Now filter out lines with yellow decoration
+    // Filter out all line-empty
     const textLines = [];
     for (let i = 1; i <= doc.lines; i++) {
         if (!toExclude.has(i)) {
