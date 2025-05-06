@@ -180,28 +180,57 @@ function unBalanceDocs(decoPlugin, doc) {
     return textLines;
 }
 
-document.getElementById('run-diff').addEventListener('click', () => {
-    const text1 = unBalanceDocs(window.leftEditor.plugin(leftDiffPlugin), window.leftEditor.state.doc);
-    const text2 = unBalanceDocs(window.rightEditor.plugin(rightDiffPlugin), window.rightEditor.state.doc);
-
-    // Add  padded text into both editors to make the diff side by side
-    const result = balancePatienceOutput(patienceDiff(text1, text2).lines);
-    const { leftDoc, rightDoc } = buildBalancedDocs(result);
-
-    window.leftEditor.dispatch({
-        changes: { from: 0, to: window.leftEditor.state.doc.length, insert: leftDoc }
-    });
+function showCheckMark(buttonId) {
+    const buttonText = Array.from(document.getElementById(buttonId).children);
     
-    window.rightEditor.dispatch({
-        changes: { from: 0, to: window.rightEditor.state.doc.length, insert: rightDoc }
+    buttonText.forEach(text => text.classList.toggle('hidden'));
+    setTimeout(() => {
+        buttonText.forEach(text => text.classList.toggle('hidden'));
+    }, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('run-diff').addEventListener('click', () => {
+        const text1 = unBalanceDocs(window.leftEditor.plugin(leftDiffPlugin), window.leftEditor.state.doc);
+        const text2 = unBalanceDocs(window.rightEditor.plugin(rightDiffPlugin), window.rightEditor.state.doc);
+
+        // Add  padded text into both editors to make the diff side by side
+        const result = balancePatienceOutput(patienceDiff(text1, text2).lines);
+        const { leftDoc, rightDoc } = buildBalancedDocs(result);
+
+        window.leftEditor.dispatch({
+            changes: { from: 0, to: window.leftEditor.state.doc.length, insert: leftDoc }
+        });
+    
+        window.rightEditor.dispatch({
+            changes: { from: 0, to: window.rightEditor.state.doc.length, insert: rightDoc }
+        });
+
+        // Then apply diff decorations
+        window.leftEditor.dispatch({
+            effects: setDiffEffect.of({ diffResult: result })
+        });
+
+        window.rightEditor.dispatch({
+            effects: setDiffEffect.of({ diffResult: result })
+        });
     });
 
-    // Then apply diff decorations
-    window.leftEditor.dispatch({
-        effects: setDiffEffect.of({ diffResult: result })
+    document.getElementById('left-copy').addEventListener('click', () => {
+        const text = unBalanceDocs(window.leftEditor.plugin(leftDiffPlugin), window.leftEditor.state.doc).join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+            showCheckMark('left-copy');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+        });
     });
 
-    window.rightEditor.dispatch({
-        effects: setDiffEffect.of({ diffResult: result })
+    document.getElementById('right-copy').addEventListener('click', () => {
+        const text = unBalanceDocs(window.rightEditor.plugin(rightDiffPlugin), window.rightEditor.state.doc).join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+            showCheckMark('right-copy');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+        });
     });
 });

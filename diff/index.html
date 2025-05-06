@@ -23,35 +23,58 @@
 <body>
     <nav id="nav"></nav> <!-- End (div class="nav") -->
     <div class="body">
-        <div id="sidebar">sidebar</div>
         <div id="tool">
-            <div id="tool-menu">
-                <div class="menu-title">
-                    <label>Diff Tool</label>
-                </div>
-                <div class="menu-buttons">
-                    <button id="run-diff" type="button">Run Diff</button>
+            <div id="menu-bar">
+                <div class="spacer"></div>
+                <div id="tool-menu">
+                    <div class="menu-title">
+                        <label>Diff Tool</label>
+                    </div>
+                    <div class="menu-buttons">
+                        <button id="run-diff" type="button">Run Diff</button>
+                    </div>
                 </div>
             </div>
             <div id="tool-content">
-                <div id="left-editor" class="editor">
-                    <div id="left-menu" class="editor-menu">
-                        <div class="menu-title">
-                            <label>Original Text</label>
+                <div id="sidebar">sidebar</div>
+                <div id="editors">
+                    <div id="editor-menus">
+                        <div id="left-menu" class="editor-menu">
+                            <div class="menu-title">
+                                <label>Original Text</label>
+                            </div>
+                            <div class="menu-buttons">
+                                <button type="button" class="copy-btn" id="left-copy" title="Copy">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"></path>
+                                    </svg>
+                                    <i class="fa-solid fa-check hidden"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="menu-buttons"></div>
-                    </div>
-                    <div id="left-container" class="cm-instance"></div>
-                </div>
-                <div class="editor-spacer"></div>
-                <div id="right-editor" class="editor">
-                    <div id="right-menu" class="editor-menu">
-                        <div class="menu-title">
-                            <label>Changed Text</label>
+                        <div id="right-menu" class="editor-menu">
+                            <div class="menu-title">
+                                <label>Changed Text</label>
+                            </div>
+                            <div class="menu-buttons">
+                                <button type="button" class="copy-btn" id="right-copy" title="Copy">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"></path>
+                                    </svg>
+                                    <i class="fa-solid fa-check hidden"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="menu-buttons"></div>
+                        <div id="scrollbar-spacer"></div>
                     </div>
-                    <div id="right-container" class="cm-instance"></div>
+                    <div id="editor-textbox">
+                        <div id="left-editor" class="editor">
+                            <div id="left-container" class="cm-instance"></div>
+                        </div>
+                        <div id="right-editor" class="editor">
+                            <div id="right-container" class="cm-instance"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

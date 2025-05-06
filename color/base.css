@@ -19,7 +19,6 @@ body {
 
 nav {
     padding: 12px 15px;
-    margin-bottom: 4px;
     width: 100%;
     flex-grow: 0;
     background: #fafafa;
@@ -70,6 +69,7 @@ code {
     height: 100%;
     align-items: center;
     flex-grow: 0;
+    margin: 15px;
 }
 
 #spacer-top {
