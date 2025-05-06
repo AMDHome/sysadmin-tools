@@ -156,10 +156,10 @@ function unBalanceDocs(decoPlugin, doc) {
     const toExclude = new Set();
     const dirtyLines = new Set();
 
-    // Find all empty lines
+    // Find all padding lines
     decorations.between(0, doc.length, (from, to, deco) => {
         const line = doc.lineAt(from).number;
-        if (deco.spec.class === "line-empty" && !dirtyLines.has(line)) {
+        if (deco.spec.class === "line-padding" && !dirtyLines.has(line)) {
             toExclude.add(line);
         }
 
@@ -169,7 +169,7 @@ function unBalanceDocs(decoPlugin, doc) {
         }
     });
 
-    // Filter out all line-empty
+    // Filter out all line-padding
     const textLines = [];
     for (let i = 1; i <= doc.lines; i++) {
         if (!toExclude.has(i)) {

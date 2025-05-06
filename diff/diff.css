@@ -64,41 +64,50 @@
     height: 100%;
 }
 
+.cm-editor.cm-focused {
+    outline: 1px solid #aaa;
+    border-radius: 5px;
+}
+
+.cm-gutters {
+    border-radius: 5px 0 0 5px;
+}
+
 .cm-gutter {
     font-family: monospace;
     min-width: calc(1ch * 5);
 }
 
-.line-deleted {
+.line-deleted, div.cm-gutterElement:has(.gutter-line-deleted) {
     background-color: #FA9B9B33;
 }
 
-.line-deleted.cm-activeLine {
+.line-deleted.cm-activeLine, div.cm-gutterElement.cm-activeLineGutter:has(.gutter-line-deleted) {
     background-color: #F7636340;
 }
 
-.line-inserted {
+.line-inserted, div.cm-gutterElement:has(.gutter-line-inserted) {
     background-color: #7DE1BE33;
 }
 
-.line-inserted.cm-activeLine {
+.line-inserted.cm-activeLine, div.cm-gutterElement.cm-activeLineGutter:has(.gutter-line-inserted) {
     background-color: #1BCB8B40;
 }
 
-.line-empty {
-    background-color: #B4B4BE33;
-}
-
-.line-empty.cm-activeLine {
-    background-color: #9B9BA740;
-}
-
-.line-dirty {
+.line-dirty, div.cm-gutterElement:has(.gutter-line-dirty) {
     background-color: #FFD34440;
 }
 
-.line-dirty.cm-activeLine {
+.line-dirty.cm-activeLine, div.cm-gutterElement.cm-activeLineGutter:has(.gutter-line-dirty) {
     background-color: #FFCD2B66;
+}
+
+.line-padding {
+    background-color: #B4B4BE33;
+}
+
+.line-padding.cm-activeLine {
+    background-color: #9B9BA740;
 }
 
 .word-deleted {

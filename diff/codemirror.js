@@ -1,5 +1,5 @@
-import { EditorView, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor,
-        rectangularSelection, crosshairCursor, highlightActiveLine, keymap, Decoration, ViewPlugin } 
+import { EditorView, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection,
+         crosshairCursor, highlightActiveLine, keymap, Decoration, ViewPlugin, GutterMarker, gutter } 
         from "https://cdn.jsdelivr.net/npm/@codemirror/view@6.36.3/+esm";
 import { EditorState, RangeSetBuilder, StateEffect } from"https://cdn.jsdelivr.net/npm/@codemirror/state@6.5.2/+esm";
 import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap }
@@ -12,8 +12,7 @@ import { lintKeymap } from "https://cdn.jsdelivr.net/npm/@codemirror/lint@6.8.5/
 import { diffWordsWithSpace } from "https://cdn.jsdelivr.net/npm/diff@7.0.0/+esm";
 
 // Run basic Configuration
-const basicSetup = (() => [lineNumbers(),
-                           highlightActiveLineGutter(),
+const basicSetup = (() => [highlightActiveLineGutter(),
                            highlightSpecialChars(),
                            history(),
                            foldGutter(),
@@ -34,6 +33,22 @@ const basicSetup = (() => [lineNumbers(),
                                       ...lintKeymap])
                           ])();
 
+// GutterMarker with line number
+class LineNumbers extends GutterMarker {
+    constructor(number, color = null) {
+        super();
+        this.number = number;
+        this.color = color;
+    }
+
+    toDOM() {
+        const span = document.createElement("span");
+        span.textContent = this.number;
+        span.classList.add(this.color);
+        return span;
+    }
+}
+
 // Effect to update diff highlights
 export const setDiffEffect = StateEffect.define();
 
@@ -42,7 +57,7 @@ function createDiffPlugin(side) {
         constructor(view) {
             this.side = side;
             this.decorations = Decoration.none;
-            this.paddedLines = null;
+            this.gutter = buildGutter(view, this.decorations);
         }
 
         update(update) {
@@ -50,9 +65,8 @@ function createDiffPlugin(side) {
                 for (const effect of tr.effects) {
                     if (effect.is(setDiffEffect)) {
                         this.decorations = Decoration.none;
-                        const computedDeco = buildDecorations(update.view, effect.value.diffResult, this.side);
-                        this.decorations = computedDeco.decorations;
-                        this.paddedLines = computedDeco.paddedLines;
+                        this.decorations = buildDecorations(update.view, effect.value.diffResult, this.side);
+                        this.gutter = buildGutter(update.view, this.decorations);
                         return;
                     }
                 }
@@ -76,16 +90,24 @@ function createDiffPlugin(side) {
                     this.decorations = this.decorations.update({ add: dirtyDecos });
                 }
             }
+            if (update.docChanged || update.viewportChanged) {
+                this.gutter = buildGutter(update.view, this.decorations);
+            }
         }
     }, {
-        decorations: v => v.decorations
+        decorations: v => v.decorations,
+        provide: plugin => gutter({
+            class: "cm-lineNumbers",
+            markers: view => view.plugin(plugin)?.gutter || Decoration.none,
+            initialSpacer: () => new LineNumbers("0000"),
+            lineMarkerChange: () => true,
+        })
     });
 }
 
 function buildDecorations(view, diffResult, side) {
     const builder = new RangeSetBuilder();
     const docLineCount = view.state.doc.lines;
-    const paddedLines = new Set();
 
     for (let i = 0; i < diffResult.length; i++) {
         // Get Current line & line number
@@ -95,11 +117,9 @@ function buildDecorations(view, diffResult, side) {
 
         // Mark Lines
         if(line.status === "inserted") {
-            builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-empty" : "line-inserted" }));
-            if (side === "left") paddedLines.add(i);
+            builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-padding" : "line-inserted" }));
         } else if (line.status === "removed") {
-            builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-empty" }));
-            if (side === "right") paddedLines.add(i);
+            builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-padding" }));
         } else if (line.status === "changed") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-inserted" }));
         }
@@ -121,7 +141,33 @@ function buildDecorations(view, diffResult, side) {
         }
     }
 
-    return { decorations: builder.finish(), paddedLines };
+    return builder.finish();
+}
+
+function buildGutter(view, decorations) {
+    const builder = new RangeSetBuilder();
+    const { doc } = view.state;
+    let count = 1;
+
+    for (let i = 1; i <= doc.lines; i++) {
+        const line = doc.line(i);
+        let isPadded = false;
+        let isDirty = false;
+        let lineColor = null;
+
+        decorations.between(line.from, line.to, (from, to, deco) => {
+            if (deco.spec.class === "line-padding") isPadded = true;
+            if (deco.spec.class === "line-dirty") {
+                isDirty = true;
+                lineColor = deco.spec.class;
+            }
+            if (deco.spec.class === "line-inserted" || deco.spec.class === "line-deleted") lineColor = deco.spec.class;
+        });
+
+        if (!isPadded || isDirty)  builder.add(line.from, line.from, new LineNumbers(count++, "gutter-" + lineColor));
+    }
+
+    return builder.finish();
 }
 
 export const leftDiffPlugin = createDiffPlugin("left");
