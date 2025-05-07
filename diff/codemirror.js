@@ -88,6 +88,7 @@ function createDiffPlugin(side) {
 
                 if (dirtyDecos.length) {
                     this.decorations = this.decorations.update({ add: dirtyDecos });
+                    this.gutter = buildGutter(update.view, this.decorations);
                 }
             }
             if (update.docChanged || update.viewportChanged) {
@@ -108,6 +109,8 @@ function createDiffPlugin(side) {
 function buildDecorations(view, diffResult, side) {
     const builder = new RangeSetBuilder();
     const docLineCount = view.state.doc.lines;
+
+    if (!diffResult) return Decoration.none;
 
     for (let i = 0; i < diffResult.length; i++) {
         // Get Current line & line number
@@ -157,14 +160,15 @@ function buildGutter(view, decorations) {
 
         decorations.between(line.from, line.to, (from, to, deco) => {
             if (deco.spec.class === "line-padding") isPadded = true;
+            if (deco.spec.class === "line-inserted" || deco.spec.class === "line-deleted") lineColor = deco.spec.class;
             if (deco.spec.class === "line-dirty") {
                 isDirty = true;
                 lineColor = deco.spec.class;
             }
-            if (deco.spec.class === "line-inserted" || deco.spec.class === "line-deleted") lineColor = deco.spec.class;
         });
 
-        if (!isPadded || isDirty)  builder.add(line.from, line.from, new LineNumbers(count++, "gutter-" + lineColor));
+        if (!isPadded && !isDirty)  builder.add(line.from, line.from, new LineNumbers(count++, "gutter-" + lineColor));
+        if (isDirty)  builder.add(line.from, line.from, new LineNumbers(count++, "gutter-line-dirty"));
     }
 
     return builder.finish();

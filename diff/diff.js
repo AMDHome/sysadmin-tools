@@ -144,14 +144,11 @@ function buildBalancedDocs(diffLines) {
     };
 }
 
-function unBalanceDocs(decoPlugin, doc) {
+function unBalanceDocs(editor, decoPlugin) {
+    const decorations = editor.plugin(decoPlugin).decorations;
+    const doc = editor.state.doc;
 
-    const decorations = decoPlugin.decorations;
-
-    if (!decorations) {
-        console.log("error: No Decorations")
-        return;
-    };
+    if (!decorations) return;
 
     const toExclude = new Set();
     const dirtyLines = new Set();
@@ -180,6 +177,27 @@ function unBalanceDocs(decoPlugin, doc) {
     return textLines;
 }
 
+function compareIPv4(a, b) {
+    const aParts = a.split('.').map(Number);
+    const bParts = b.split('.').map(Number);
+    for (let i = 0; i < 4; i++) {
+        const diff = aParts[i] - bParts[i];
+        if (diff !== 0) return diff;
+    }
+    return 0;
+}
+
+function compareIP(a, b) {
+    const aIsV4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(a);
+    const bIsV4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(b);
+
+    if (aIsV4 && bIsV4) return compareIPv4(a, b);
+    if (aIsV4) return -1; // v4 before everything else
+    if (bIsV4) return 1;
+    return a.localeCompare(b); // fallback for v6/text
+}
+
+
 function showCheckMark(buttonId) {
     const buttonText = Array.from(document.getElementById(buttonId).children);
     
@@ -189,48 +207,137 @@ function showCheckMark(buttonId) {
     }, 1000);
 }
 
+function setEditorContent(leftText = "", rightText = "", diffDeco = null) {
+    // Set text content
+    window.leftEditor.dispatch({
+        changes: { from: 0, to: window.leftEditor.state.doc.length, insert: leftText }
+    });
+    
+    window.rightEditor.dispatch({
+        changes: { from: 0, to: window.rightEditor.state.doc.length, insert: rightText }
+    });
+
+    // Then apply diff decorations
+    window.leftEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
+    window.rightEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
+}
+
+// Manipulates text in place. Lines stay in the same place.
+// Decoration stays valid
+function manipulateText(action = null, editor) {
+    const doc = editor.state.doc;
+    const changes = [];
+
+    if (!action) return;
+
+    for (let i = 1; i <= doc.lines; i++) {
+        const line = doc.line(i);
+        let modified = doc.line(i);
+
+        if (action === "lowercase") {
+            modified = line.text.toLowerCase();
+        } else if (action === "trim") {
+            modified = line.text.trim();
+        }
+
+        if (modified !== line.text) {
+            changes.push({
+                from: line.from,
+                to: line.to,
+                insert: modified
+            });
+        }
+    }
+
+    if (changes.length > 0) {
+        editor.dispatch({ changes });
+    }
+}
+
+// Manipulate text and removes decoration. Lines will change locations.
+function recompileText(action = null, editor, diffPlugin) {
+    const text = unBalanceDocs(editor, diffPlugin);
+    let output = ""
+
+    switch (action) {
+        case "removeBlank":
+            output = text.filter(line => line.trim() !== "").join('\n'); break;
+
+        case "concat":
+            output = text.join(" "); break;
+
+        case "sortAlpha":
+            output = text.sort().join('\n'); break;
+
+        case "sortNum":
+            output = text.sort((a, b) => {
+                const na = parseFloat(a), nb = parseFloat(b);
+                const aNum = !isNaN(na), bNum = !isNaN(nb);
+                if (aNum && bNum) return na - nb;
+                if (aNum) return -1;
+                if (bNum) return 1;
+                return a.localeCompare(b);
+            }).join('\n'); break;
+
+        case "sortIP":
+            output = text.sort(compareIP).join('\n'); break;
+
+        case "uniq":
+            output = text.filter((line, i, arr) => i === 0 || line !== arr[i - 1]).join('\n'); break;
+    }
+
+    editor.dispatch({ 
+        changes: { from: 0, to: editor.state.doc.length, insert: output }
+    });
+}
+
+function setupCopyButton(id, editor, plugin) {
+    document.getElementById(id).addEventListener("click", () => {
+        const text = unBalanceDocs(editor, plugin).join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+            showCheckMark(id);
+        }).catch(err => {
+            console.error(`Failed to copy from ${id}:`, err);
+        });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('run-diff').addEventListener('click', () => {
-        const text1 = unBalanceDocs(window.leftEditor.plugin(leftDiffPlugin), window.leftEditor.state.doc);
-        const text2 = unBalanceDocs(window.rightEditor.plugin(rightDiffPlugin), window.rightEditor.state.doc);
+        const text1 = unBalanceDocs(window.leftEditor, leftDiffPlugin);
+        const text2 = unBalanceDocs(window.rightEditor, rightDiffPlugin);
 
-        // Add  padded text into both editors to make the diff side by side
+        // Add padded text into both editors to make the diff side by side
         const result = balancePatienceOutput(patienceDiff(text1, text2).lines);
         const { leftDoc, rightDoc } = buildBalancedDocs(result);
 
-        window.leftEditor.dispatch({
-            changes: { from: 0, to: window.leftEditor.state.doc.length, insert: leftDoc }
-        });
-    
-        window.rightEditor.dispatch({
-            changes: { from: 0, to: window.rightEditor.state.doc.length, insert: rightDoc }
-        });
+        setEditorContent(leftDoc, rightDoc, result);
+    });
 
-        // Then apply diff decorations
-        window.leftEditor.dispatch({
-            effects: setDiffEffect.of({ diffResult: result })
-        });
+    document.getElementById('clear').addEventListener('click', () => {
+        setEditorContent();
+    });
 
-        window.rightEditor.dispatch({
-            effects: setDiffEffect.of({ diffResult: result })
+    document.getElementById('reset').addEventListener('click', () => {
+        const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
+        const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
+        setEditorContent(leftDoc, rightDoc);
+    });
+
+    ["lowercase", "trim"].forEach(action => {
+        document.getElementById(action).addEventListener("click", () => {
+            manipulateText(action, window.leftEditor);
+            manipulateText(action, window.rightEditor);
         });
     });
 
-    document.getElementById('left-copy').addEventListener('click', () => {
-        const text = unBalanceDocs(window.leftEditor.plugin(leftDiffPlugin), window.leftEditor.state.doc).join("\n");
-        navigator.clipboard.writeText(text).then(() => {
-            showCheckMark('left-copy');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
+    ["removeBlank", "concat", "sortAlpha", "sortNum", "sortIP", "uniq"].forEach(action => {
+        document.getElementById(action).addEventListener("click", () => {
+            recompileText(action, window.leftEditor, leftDiffPlugin);
+            recompileText(action, window.rightEditor, rightDiffPlugin);
         });
     });
 
-    document.getElementById('right-copy').addEventListener('click', () => {
-        const text = unBalanceDocs(window.rightEditor.plugin(rightDiffPlugin), window.rightEditor.state.doc).join("\n");
-        navigator.clipboard.writeText(text).then(() => {
-            showCheckMark('right-copy');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-        });
-    });
+    setupCopyButton("left-copy", window.leftEditor, leftDiffPlugin);
+    setupCopyButton("right-copy", window.rightEditor, rightDiffPlugin);
 });
