@@ -6,7 +6,7 @@
     <title>Simple Diff Checker</title>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="diff.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=check,content_copy,delete,invert_colors_off">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=check,content_copy,delete,delete_forever,file_open,invert_colors_off,restart_alt,upload">
     <script type="module" src="codemirror.js"></script>
     <script type="module" src="diff.js"></script>
     <script>
@@ -30,44 +30,81 @@
     </nav> <!-- End (div class="nav") -->
     <div class="body">
         <div id="tool">
-            <div id="menu-bar">
-                <div class="spacer"></div>
-                <div id="tool-menu">
-                    <div class="menu-title">
-                        <label>Diff Tool</label>
+            <div id="sidebar">
+                <div id="sidebar-header">
+                    <div id="sidebar-messages" class="hidden-message">Spellcheck will be enabled after clicking on the editor</div>
+                </div>
+                <div id="sidebar-buttons">
+                    <div id="sidebar-start">
+                        <div id="settings" class="sidebar-containers">
+                            <label class="sidebar-labels">Settings</label>
+                            <div class="settings-option">
+                                <span>Spellcheck (Beta)</span>
+                                <label class="settings-toggle">
+                                    <input type="checkbox" id="spellcheck-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="tools" class="sidebar-containers">
+                            <label class="sidebar-labels">Tools</label>
+                            <div class="button-box">
+                                <button id="lowercase"><span>To Lowercase</span></button>
+                                <button id="trim"><span>Trim Whitespace</span></button>
+                                <button id="removeBlank"><span>Remove Empty Lines</span></button>
+                                <button id="concat"><span>Newlines -> Spaces</span></button>
+                                <button id="sortAlpha">
+                                    <span>Sort Lines</span>
+                                    <span>(Alpha)</span>
+                                </button>
+                                <button id="sortNum">
+                                    <span>Sort Lines</span>
+                                    <span>(Numerical)</span>
+                                </button>
+                                <button id="sortIP">
+                                    <span>Sort Lines</span>
+                                    <span>(IP)</span>
+                                </button>
+                                <button id="uniq">
+                                    <span>Dedup Lines</span>
+                                    <span>(Uniq)</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="menu-buttons">
-                        <button id="clear" type="button" title="Clear Text"><span class="material-symbols-outlined icons24">delete</span></button>
-                        <button id="reset" type="button" title="Reset Diff"><span class="material-symbols-outlined icons24">invert_colors_off</span></button>
-                        <button id="run-diff" type="button">Run Diff</button>
+                    <div class="sticky-buttons">
+                        <div class="sticky-group sidebar-containers">
+                            <label class="sidebar-labels">Editor Commands</label>
+                            <div class="button-box">
+                                <button class="clear" type="button" title="Clear Text">
+                                    <span>Clear Editor Text</span>
+                                    <span class="material-symbols-outlined icons24">delete</span>
+                                </button>
+                                <button class="reload hiddenY" id="sidebar-reload" type="button" title="Reload Files">
+                                    <span>Reload Files</span>
+                                    <span class="material-symbols-outlined icons24">restart_alt</span>
+                                </button>
+                                <button class="reset" type="button" title="Reset Diff">
+                                    <span>Reset Diff Colors</span>
+                                    <span class="material-symbols-outlined icons24">invert_colors_off</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="run-diff" type="button">Run Diff</button>
                     </div>
                 </div>
             </div>
             <div id="tool-content">
-                <div id="sidebar">
-                    <div id="tools" class="sidebar-containers">
-                        <label>Tools</label>
-                        <div class="buttonBox">
-                            <button id="lowercase"><span>To Lowercase</span></button>
-                            <button id="trim"><span>Trim Whitespace</span></button>
-                            <button id="removeBlank"><span>Remove Empty Lines</span></button>
-                            <button id="concat"><span>Newlines -> Spaces</span></button>
-                            <button id="sortAlpha">
-                                <span>Sort Lines</span>
-                                <span>(Alpha)</span>
-                            </button>
-                            <button id="sortNum">
-                                <span>Sort Lines</span>
-                                <span>(Numerical)</span>
-                            </button>
-                            <button id="sortIP">
-                                <span>Sort Lines</span>
-                                <span>(IP)</span>
-                            </button>
-                            <button id="uniq">
-                                <span>Dedup Lines</span>
-                                <span>(Uniq)</span>
-                            </button>
+                <div id="menu-bar">
+                    <div id="tool-menu">
+                        <div class="menu-title">
+                            <input id="title-input" type="text" placeholder="Untitled Diff">
+                        </div>
+                        <div class="menu-buttons">
+                            <button class="clear" type="button" title="Clear Text"><span class="material-symbols-outlined icons24">delete</span></button>
+                            <button class="reload hiddenX" id="menu-reload" type="button" title="Reload Files"><span class="material-symbols-outlined icons24">restart_alt</span></button>
+                            <button class="reset" type="button" title="Reset Diff"><span class="material-symbols-outlined icons24">invert_colors_off</span></button>
+                            <button class="run-diff" type="button">Run Diff</button>
                         </div>
                     </div>
                 </div>
@@ -78,9 +115,16 @@
                                 <label>Original Text</label>
                             </div>
                             <div class="editor-menu-buttons">
-                                <button type="button" class="copy-btn" id="left-copy" title="Copy Left Text">
-                                    <span class="material-symbols-outlined icons22">content_copy</span>
-                                    <span class="material-symbols-outlined hidden icons22">check</span>
+                                <button class="editor-btn" id="left-clear" type="button" title="Clear Left Text"><span class="material-symbols-outlined icons20">delete_forever</span></button>
+                                <button class="editor-btn hiddenX" id="left-reload" type="button" title="Reload Left File"><span class="material-symbols-outlined icons20">restart_alt</span></button>
+                                <label class="editor-btn upload-btn" title="Upload File - Left">
+                                    <span class="editor-button-label">Open File</span>
+                                    <span class="material-symbols-outlined icons20">upload</span>
+                                    <input type="file" accept=".txt" id="left-upload" class="upload-input">
+                                </label>
+                                <button type="button" class="editor-btn copy-btn" id="left-copy" title="Copy Left Text">
+                                    <span class="material-symbols-outlined icons20">content_copy</span>
+                                    <span class="material-symbols-outlined hidden-zoom icons20">check</span>
                                 </button>
                             </div>
                         </div>
@@ -89,9 +133,16 @@
                                 <label>Changed Text</label>
                             </div>
                             <div class="editor-menu-buttons">
-                                <button type="button" class="copy-btn" id="right-copy" title="Copy Right Text">
-                                    <span class="material-symbols-outlined icons22">content_copy</span>
-                                    <span class="material-symbols-outlined hidden icons22">check</span>
+                                <button class="editor-btn" id="right-clear" type="button" title="Clear RightText"><span class="material-symbols-outlined icons20">delete_forever</span></button>
+                                <button class="editor-btn hiddenX" id="right-reload" type="button" title="Reload Right File"><span class="material-symbols-outlined icons20">restart_alt</span></button>
+                                <label class="editor-btn upload-btn" title="Upload File - Right">
+                                    <span class="editor-button-label">Open File</span>
+                                    <span class="material-symbols-outlined icons20">upload</span>
+                                    <input type="file" accept=".txt" id="right-upload" class="upload-input">
+                                </label>
+                                <button type="button" class="editor-btn copy-btn" id="right-copy" title="Copy Right Text">
+                                    <span class="material-symbols-outlined icons20">content_copy</span>
+                                    <span class="material-symbols-outlined hidden-zoom icons20">check</span>
                                 </button>
                             </div>
                         </div>
@@ -99,10 +150,20 @@
                     </div>
                     <div id="editor-textbox">
                         <div id="left-editor" class="editor">
-                            <div id="left-container" class="cm-instance"></div>
+                            <div id="left-container" class="cm-instance">
+                                <div class="drop-overlay" id="overlay-left">
+                                    <span class="material-symbols-outlined icons48">file_open</span>
+                                    <span>Drop files to upload.</span>
+                                </div>
+                            </div>
                         </div>
                         <div id="right-editor" class="editor">
-                            <div id="right-container" class="cm-instance"></div>
+                            <div id="right-container" class="cm-instance">
+                                <div class="drop-overlay" id="overlay-right">
+                                    <span class="material-symbols-outlined icons48">file_open</span>
+                                    <span>Drop files to upload.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

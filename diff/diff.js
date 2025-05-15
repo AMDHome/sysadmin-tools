@@ -201,25 +201,31 @@ function compareIP(a, b) {
 function showCheckMark(buttonId) {
     const buttonText = Array.from(document.getElementById(buttonId).children);
     
-    buttonText.forEach(text => text.classList.toggle('hidden'));
+    buttonText.forEach(text => text.classList.toggle('hidden-zoom'));
     setTimeout(() => {
-        buttonText.forEach(text => text.classList.toggle('hidden'));
+        buttonText.forEach(text => text.classList.toggle('hidden-zoom'));
     }, 1000);
 }
 
-function setEditorContent(leftText = "", rightText = "", diffDeco = null) {
+function setEditorContent(leftText = null, rightText = null, diffDeco = null, suppliedDeco = true) {
     // Set text content
-    window.leftEditor.dispatch({
-        changes: { from: 0, to: window.leftEditor.state.doc.length, insert: leftText }
-    });
+    if (leftText !== null) {
+        window.leftEditor.dispatch({
+            changes: { from: 0, to: window.leftEditor.state.doc.length, insert: leftText }
+        });
+    }
     
-    window.rightEditor.dispatch({
-        changes: { from: 0, to: window.rightEditor.state.doc.length, insert: rightText }
-    });
+    if(rightText !== null) {
+        window.rightEditor.dispatch({
+            changes: { from: 0, to: window.rightEditor.state.doc.length, insert: rightText }
+        });
+    }
 
     // Then apply diff decorations
-    window.leftEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
-    window.rightEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
+    if (suppliedDeco) {
+        window.leftEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
+        window.rightEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
+    }
 }
 
 // Manipulates text in place. Lines stay in the same place.
@@ -302,26 +308,151 @@ function setupCopyButton(id, editor, plugin) {
     });
 }
 
+let leftFile = "";
+let rightFile = "";
+function loadFile(e, button) {
+    if (button === "left-upload") {
+        leftFile = e.target.result;
+        setEditorContent(leftFile, null, null, false);
+        document.getElementById("left-reload").classList.remove("hiddenX");
+    } else if (button === "right-upload") {
+        rightFile = e.target.result;
+        setEditorContent(null, rightFile, null, false);
+        document.getElementById("right-reload").classList.remove("hiddenX");
+    }
+    requestAnimationFrame(() => {
+        document.getElementById("menu-reload").classList.remove("hiddenX");
+        document.getElementById("sidebar-reload").classList.remove("hiddenY");
+    });
+}
+
+function reloadFile(side = null) {
+    if (side === "left") {
+        setEditorContent(leftFile, null, null, false);
+    } else if (side === "right") {
+        setEditorContent(null, rightFile, null, false);
+    } else {
+        setEditorContent(leftFile, rightFile, null, false);
+    }
+}
+
+function clearFile(side = null) {
+    if (side === "left") {
+        leftFile = "";
+        setEditorContent(leftFile, null, null, false);
+        document.getElementById("left-reload").classList.add("hiddenX");
+    } else if (side === "right") {
+        rightFile = "";
+        setEditorContent(null, rightFile, null, false);
+        document.getElementById("right-reload").classList.add("hiddenX");
+    } else {
+        leftFile = "";
+        rightFile = "";
+        setEditorContent(leftFile, rightFile, null, false);
+        document.getElementById("left-reload").classList.add("hiddenX");
+        document.getElementById("right-reload").classList.add("hiddenX");
+    }
+
+    if (leftFile === "" && rightFile === "") {
+        requestAnimationFrame(() => {
+            document.getElementById("menu-reload").classList.add("hiddenX");
+            document.getElementById("sidebar-reload").classList.add("hiddenY");
+        });
+    }
+}
+
+function setupDropZone(dropZoneId, button) {
+    const zone = document.getElementById(dropZoneId);
+
+    zone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        zone.firstElementChild.classList.add("active");
+    });
+
+    zone.addEventListener("dragleave", () => {
+        zone.firstElementChild.classList.remove("active");
+    });
+
+    zone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        zone.firstElementChild.classList.remove("active");
+
+        const file = event.dataTransfer.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) { loadFile(e, button); };
+        reader.readAsText(file);
+    });
+}
+
+function resizeTitleInput(titleInput) {
+    titleInput.style.width = "120px"; // reset to baseline
+    titleInput.style.width = Math.min(
+        titleInput.parentElement.offsetWidth - 12,
+        titleInput.scrollWidth + 6      // + 4px padding +1(x2)px border
+    ) + "px";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('run-diff').addEventListener('click', () => {
-        const text1 = unBalanceDocs(window.leftEditor, leftDiffPlugin);
-        const text2 = unBalanceDocs(window.rightEditor, rightDiffPlugin);
+    const titleInput = document.getElementById("title-input");
+    titleInput.addEventListener("input", () => resizeTitleInput(titleInput));
+    window.addEventListener("resize", () => resizeTitleInput(titleInput));
 
-        // Add padded text into both editors to make the diff side by side
-        const result = balancePatienceOutput(patienceDiff(text1, text2).lines);
-        const { leftDoc, rightDoc } = buildBalancedDocs(result);
+    titleInput.addEventListener("keydown", (e) => { if (e.key === "Enter") titleInput.blur(); });
 
-        setEditorContent(leftDoc, rightDoc, result);
+    document.querySelectorAll('.run-diff').forEach(button => {
+        button.addEventListener('click', () => {
+            const text1 = unBalanceDocs(window.leftEditor, leftDiffPlugin);
+            const text2 = unBalanceDocs(window.rightEditor, rightDiffPlugin);
+
+            // Add padded text into both editors to make the diff side by side
+            const result = balancePatienceOutput(patienceDiff(text1, text2).lines);
+            const { leftDoc, rightDoc } = buildBalancedDocs(result);
+
+            setEditorContent(leftDoc, rightDoc, result);
+        });
     });
 
-    document.getElementById('clear').addEventListener('click', () => {
-        setEditorContent();
+    document.querySelectorAll('.clear').forEach(button => {
+        button.addEventListener('click', () => {
+            clearFile();
+        });
     });
 
-    document.getElementById('reset').addEventListener('click', () => {
-        const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
-        const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
-        setEditorContent(leftDoc, rightDoc);
+    document.querySelectorAll('.reload').forEach(button => {
+        button.addEventListener('click', () => {
+            reloadFile();
+        });
+    });
+
+    document.querySelectorAll('.reset').forEach(button => {
+        button.addEventListener('click', () => {
+            const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
+            const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
+            setEditorContent(leftDoc, rightDoc);
+        });
+    });
+
+    let hideTimeout = null;
+    document.getElementById("spellcheck-toggle").addEventListener("change", function () {
+        const state = this.checked ? true : false;
+        const active = document.activeElement;
+
+        window.leftEditor.contentDOM.setAttribute("spellcheck", state);
+        window.rightEditor.contentDOM.setAttribute("spellcheck", state);
+        
+        
+        const message = document.getElementById("sidebar-messages");
+        if (state) {
+            message.classList.remove('hidden-message');
+            if (hideTimeout) clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => { message.classList.add('hidden-message'); }, 7500);
+        } else {
+            if (hideTimeout) clearTimeout(hideTimeout);
+            hideTimeout = null;
+            message.classList.add('hidden-message');
+        }
     });
 
     ["lowercase", "trim"].forEach(action => {
@@ -338,6 +469,34 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    ["left-clear", "right-clear"].forEach(action => {
+        document.getElementById(action).addEventListener("click", () => {
+            clearFile(action.split("-")[0]);
+        });
+    });
+
+    ["left-reload", "right-reload"].forEach(action => {
+        document.getElementById(action).addEventListener("click", () => {
+            reloadFile(action.split("-")[0]);
+        });
+    });
+
+    let leftFile = "";
+    let rightFile = "";
+    ["left-upload", "right-upload"].forEach(button => {
+        document.getElementById(button).addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) { loadFile(e, button); };
+            reader.readAsText(file);
+        });
+    });
+
+    setupDropZone("left-container", "left-upload");
+    setupDropZone("right-container", "right-upload");
     setupCopyButton("left-copy", window.leftEditor, leftDiffPlugin);
     setupCopyButton("right-copy", window.rightEditor, rightDiffPlugin);
+    resizeTitleInput(titleInput);
 });

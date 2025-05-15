@@ -1,10 +1,40 @@
 /* diff.css */
+.hidden-zoom {
+    opacity: 0 !important;
+    transform: scale(0.33) !important;
+    pointer-events: none;
+}
+
+.hiddenX {
+    max-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    margin-right: 0px;
+    overflow: hidden;
+    transition: max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease !important;
+}
+
+.hiddenY {
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease !important;
+}
+
+.hidden-dn {
+    display: none !important;
+}
+
 #tool {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
     flex: 1;
-    gap: 1px;
+    gap: 10px;
 }
 
 #menu-bar {
@@ -25,6 +55,8 @@
     align-items: center;
     height: 35px;
     width: 100%;
+    max-width: 100%;
+    flex-grow: 0;
     overflow: hidden;
     scrollbar-gutter: stable;
 }
@@ -32,6 +64,72 @@
 /* Diff Editor CSS Start */
 .icons24 {
     font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+#tool-menu>.menu-title {
+    display: flex;
+    flex-direction: row;
+    gap: 1px;
+    align-items: center;
+    width: 100%;
+    flex-grow: 0;
+}
+
+#title-input {
+    font-family: var(--main-font);
+    font-size: 20px;
+    font-weight: 600;
+    background-color: #f0f0f0;
+    border: 1px solid #00000000;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #333;
+    width: 120px;
+    min-width: 110px;
+    max-width: 100%;
+    margin-left: 1px;
+    padding: 2px 0px 2px 4px;
+    scrollbar-gutter: none;
+}
+
+#title-input:hover {
+    outline: 1px solid #ccc;
+}
+
+#title-input:focus {
+    background-color: #fff;
+    outline: 1px solid #ccc;
+}
+
+#edit-name {
+    padding: 2px 2px;
+    margin-top: 2px;
+    border: 1px solid #00000000;
+    color: #999;
+}
+
+.icons16 {
+    font-size: 16px !important;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.menu-buttons  {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.menu-buttons > *:not(:last-child) {
+    margin-right: 5px;
+}
+
+#menu-reload {
+    max-width: 38px;
+}
+
+#right-reload, #left-reload {
+    max-width: 30px;
 }
 
 .menu-buttons>button {
@@ -43,57 +141,111 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 4px;
-    transition: background-color 0.2s, border-color 0.2s;
+    opacity: 1;
+    transition: background-color 0.3s, border-color 0.3s, max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
 }
 
-.menu-buttons>button:hover {
+
+.menu-buttons>button:hover, .menu-title>button:hover {
     background-color: #e0e0e0;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc !important;
 }
 
-.menu-buttons>button:active {
+.menu-buttons>button:active, .menu-title>button:active {
     background-color: #d3d3d3;
-    border-color: #ccc;
-}
-
-#run-diff {
-    display: block;
-    margin: 0 auto;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#run-diff:hover {
-    background-color: #0056b3;
+    border-color: #ccc !important;
 }
 
 #tool-content {
     display: flex;
-    flex-direction: row;
-    width: 100%;
+    flex-direction: column;
+    flex: 1;
     height: 100%;
     box-sizing: border-box;
-    gap: 10px;
-    overflow: hidden;
+    gap: 2px;
 }
 
 #sidebar {
     display: flex;
     flex-direction: column;
     width: 192px;
+    overflow: hidden;
+}
+
+#sidebar-header {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    height: 69px;
+}
+
+#sidebar-messages {
+    position: absolute;
+    word-wrap: break-word;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    opacity: 1;
+    background-color: #22222222;
+    border-radius: 10px;
+    padding: 5px 10px 25px;
+    box-sizing: border-box;
+    transform: translateY(calc(0% + 21px));
+    z-index: -1;
+}
+
+.hidden-message{
+    opacity: 0 !important;
+    transform: translateY(100%) !important;
+}
+
+
+#sidebar-buttons {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
     box-sizing: border-box;
     background-color: #f9fafa;
     border-radius: 10px;
-    margin-top: 32px;
-    padding: 10px;
+    padding: 10px 6px;
 }
 
-#sidebar button {
+#sidebar label {
+    padding: 0 2px 1px;
+    box-sizing: border-box;
+}
+
+.sidebar-labels {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #676f7e;
+}
+
+#sidebar-start {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sidebar-containers {
+    display: flex;
+    flex-direction: column;
+}
+
+.sticky-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.button-box {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1px;
+    box-sizing: border-box;
+}
+
+.button-box button {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -105,39 +257,112 @@
     background: #fff;
     border: none;
     border-radius: 6px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
     text-align: left;
     outline: none;
     cursor: pointer;
-    font-size: 14px;
     font-weight: 500;
     color: #17191C;
-    transition: background-color 0.3s, color 0.3s;
+    opacity: 1;
+    transition: background-color 0.3s, color 0.3s, max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
 }
 
-#sidebar button:hover {
+.button-box button:hover {
     background-color: #f0f0f2;
 }
 
-#sidebar button:active {
+.button-box button:active {
     background-color: #e1e2e5;
 }
 
-#sidebar label {
-    padding: 0 2px 1px;
+.button-box button *:not(:first-child) {
+    color: #888;
 }
 
-.buttonBox {
+#sidebar-reload {
+    max-height: 40px;
+}
+
+.settings-option {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 2px 0 2px 2px;
+}
+
+.settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 18px;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 1px; left: 0; right: 0; bottom: -1px;
+  background-color: #ccc;
+  transition: background-color 0.3s;
+  border-radius: 18px;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: transform 0.3s;
+  border-radius: 50%;
+}
+
+/* When checked */
+.settings-toggle input:checked + .slider {
+  background-color: #3d95f5;
+}
+
+.settings-toggle input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
+
+
+
+.sticky-buttons {
+    position: sticky;
+}
+
+button.run-diff {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button.run-diff:hover {
+    background-color: #0056b3;
+}
+
+#sidebar .run-diff {
     width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 1px;
 }
 
 #editors {
     display: flex;
     flex-direction: column;
     flex: 1;
+    overflow:hidden;
 }
 
 #editor-menus {
@@ -162,62 +387,8 @@
     gap: 10px;
     height: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
+    /*overflow-y: scroll;*/
     scrollbar-gutter: stable;
-}
-
-.menu-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
-}
-
-.copy-btn {
-    position: relative;
-    width: 35px;
-    height: 30px;
-    color: #333;
-    border: 1px solid #00000000;
-    border-radius: 4px;
-    padding: 3px 5px 3px 6px;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: background-color 0.2s, border-color 0.2s;
-}
-
-.copy-btn:hover {
-    background-color: #e0e0e0;
-    border: 1px solid #d0d0d0;
-}
-
-.copy-btn:active {
-    background-color: #d3d3d3;
-    border-color: #ccc;
-}
-
-.icons22 {
-    position: absolute;
-    font-size: 22px !important;
-    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    opacity: 1;
-    transform: scale(1);
-}
-
-.editor {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    width: 100%;
-    min-height: 100%;
-}
-
-.editor-spacer {
-    width: 25px;
 }
 
 .editor-menu {
@@ -231,6 +402,10 @@
     box-sizing: border-box;
 }
 
+.editor-menu>.menu-title {
+    margin-top: 2px;
+}
+
 .editor-menu>.menu-title>label {
     font-size: 14px;
     font-weight: 600;
@@ -239,9 +414,118 @@
 .editor-menu-buttons {
     display: flex;
     flex-direction: row;
-    allign-items: center;
+    align-items: center;
     margin-top: 1px;
 }
+
+.editor-menu-buttons button, .editor-menu-buttons label {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #00000000;
+    border-radius: 4px;
+    color: #333;
+    gap: 4px;
+}
+
+.editor-menu-buttons button:hover, .editor-menu-buttons label:hover {
+    background-color: #e0e0e0;
+    border: 1px solid #d0d0d0;
+}
+
+.editor-menu-buttons button:active, .editor-menu-buttons label:active {
+    background-color: #d3d3d3;
+    border-color: #ccc;
+}
+
+.editor-btn.upload-btn {
+    font-size: 14px;
+    padding: 3px 4px 3px 6px;
+}
+
+.upload-input {
+    display: none;
+}
+
+.editor-button-label {
+    padding-top: 1px;
+    font-weight: 500;
+}
+
+
+
+.icons20 {
+    font-size: 20px !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 40;
+}
+
+.icons48 {
+    font-size: 72px !important;
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 48;
+}
+
+.editor-btn {
+    font-size: 13px;
+    padding: 3px 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.editor-btn.copy-btn {
+    position: relative;
+    justify-content: unset !important;
+    vertical-align: middle;
+    width: 32px;
+    height: 29px;
+    padding: 3px 5px;
+}
+
+.copy-btn > .icons20 {
+    position: absolute;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.editor {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    min-height: 100%;
+}
+
+.editor .drop-overlay {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    inset: 0;
+    color: #eee;
+    background-color: #0000008a;
+    border: 4px dashed #eee;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 24px;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    pointer-events: none
+}
+
+.editor .drop-overlay.active {
+    opacity: 1;
+}
+
+.editor-spacer {
+    width: 25px;
+}
+
+
 /* Diff Editor CSS End */
 
 /* Diff Results & cm6 CSS Start */
@@ -324,3 +608,9 @@
 }
 
 /* Diff Results CSS End */
+
+@media print {
+    #nav, #sidebar, .menu-buttons, .editor-menu-buttons {
+        display: none;
+    }
+}

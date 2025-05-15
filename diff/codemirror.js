@@ -177,15 +177,23 @@ function buildGutter(view, decorations) {
 export const leftDiffPlugin = createDiffPlugin("left");
 export const rightDiffPlugin = createDiffPlugin("right");
 
+const disableDropExtension = EditorView.domEventHandlers({
+  dragover: (event) => { event.preventDefault(); return true; },
+  drop: (event) => { event.preventDefault(); return true; }
+});
+
+
 // Setup CM Editors
 window.leftEditor = new EditorView({
     doc: "",
-    extensions: [basicSetup, EditorView.lineWrapping, leftDiffPlugin],
+    extensions: [basicSetup, EditorView.lineWrapping, leftDiffPlugin, disableDropExtension],
     parent: document.getElementById("left-container")
 })
 
 window.rightEditor = new EditorView({
     doc: "",
-    extensions: [basicSetup, EditorView.lineWrapping, rightDiffPlugin],
+    extensions: [basicSetup, EditorView.lineWrapping, rightDiffPlugin, disableDropExtension],
     parent: document.getElementById("right-container")
 })
+
+//
