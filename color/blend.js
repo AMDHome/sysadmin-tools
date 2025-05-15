@@ -191,7 +191,7 @@ function updateRgbFromHex(prefix) {
     document.getElementById(prefix + "B").value = rgb.b;
     const aInput = document.getElementById(prefix + "A");
     if (aInput) {
-        const alpha = rgb.a !== null ? (rgb.a / 255) : 1.0; // Default to fully opaque if alpha missing
+        const alpha = rgb.a !== null ? rgb.a : 1.0;
         aInput.value = alpha.toFixed(2);
     }
 
@@ -221,15 +221,19 @@ function attachListeners(prefix) {
     hexInput.addEventListener("input", () => updateRgbFromHex(prefix));
 }
 
-function randomizeFieldset(prefix) {
-    document.getElementById(prefix + "R").value = Math.floor(Math.random() * 256); // 0-255
-    document.getElementById(prefix + "G").value = Math.floor(Math.random() * 256); // 0-255
-    document.getElementById(prefix + "B").value = Math.floor(Math.random() * 256); // 0-255
-    if (document.getElementById(prefix + "A")) {
-        document.getElementById(prefix + "A").value = (Math.random()).toFixed(2);      // 0.00-1.00 (2 decimals)
-    }
-    
-    updateHexFromRgb(prefix); // Update overlayColor hex field too!
+function initColors() {
+    document.getElementById("overlayR").value = Math.floor(Math.random() * 256); // 0-255
+    document.getElementById("overlayG").value = Math.floor(Math.random() * 256); // 0-255
+    document.getElementById("overlayB").value = Math.floor(Math.random() * 256); // 0-255
+    document.getElementById("overlayA").value = (Math.random()).toFixed(2);      // 0.00-1.00 (2 decimals)
+    updateHexFromRgb("overlay"); // Update overlayColor hex field too!
+
+    // Fill in target color with the results from the output calculator
+    document.getElementById("desiredColor").value = document.getElementById("hexOutputText").innerText;
+    updateRgbFromHex("desired");
+
+    // Randomize Target
+    document.getElementById("targetA").value = document.getElementById("overlayA").value;
 }
 
 function sanitizeTargetAlpha(input) {
@@ -290,8 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
     attachListeners("base");
     attachListeners("overlay");
     attachListeners("desired");
-    randomizeFieldset("overlay");
-    randomizeFieldset("desired");
+    initColors();
 
     const overlayA = document.getElementById("overlayA")
     overlayA.addEventListener("input", () => {
@@ -306,9 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateHexFromRgb("overlay");
     });
-
-    // Randomize Target
-    document.getElementById("targetA").value = (Math.random()).toFixed(2);
 
     document.getElementById("basePreview").style.background = document.getElementById("baseColor").value;
     blendColors();
