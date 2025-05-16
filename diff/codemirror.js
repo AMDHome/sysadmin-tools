@@ -1,7 +1,8 @@
 import { EditorView, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection,
          crosshairCursor, highlightActiveLine, keymap, Decoration, ViewPlugin, GutterMarker, gutter } 
         from "https://cdn.jsdelivr.net/npm/@codemirror/view@6.36.3/+esm";
-import { EditorState, RangeSetBuilder, StateEffect } from"https://cdn.jsdelivr.net/npm/@codemirror/state@6.5.2/+esm";
+import { EditorState, RangeSetBuilder, StateEffect, Annotation } 
+        from "https://cdn.jsdelivr.net/npm/@codemirror/state@6.5.2/+esm";
 import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap }
         from "https://cdn.jsdelivr.net/npm/@codemirror/language@6.11.0/+esm";
 import { history, defaultKeymap, historyKeymap }
@@ -49,8 +50,19 @@ class LineNumbers extends GutterMarker {
     }
 }
 
+export const manualRefresh = Annotation.define();
+
 // Effect to update diff highlights
 export const setDiffEffect = StateEffect.define();
+export const lineVars = {
+    recalculateHeight: false,
+    pendingUpdateLeft: false,
+    pendingUpdateRight: false,
+    heightList: [],
+    charWidth: 0,
+    lineHeight: 0,
+    containsDirty: false
+};
 
 function createDiffPlugin(side) {
     return ViewPlugin.fromClass(class {
@@ -59,16 +71,20 @@ function createDiffPlugin(side) {
             this.decorations = Decoration.none;
             this.gutter = buildGutter(view, this.decorations);
         }
-
         update(update) {
             for (const tr of update.transactions) {
-                for (const effect of tr.effects) {
+                for (const effect of (tr.effects || [])) {
                     if (effect.is(setDiffEffect)) {
                         this.decorations = Decoration.none;
+                        if (!lineVars.pendingUpdateLeft && !lineVars.pendingUpdateRight)
+                            lineVars.recalculateHeight = lineVars.pendingUpdateLeft = lineVars.pendingUpdateRight = true;
                         this.decorations = buildDecorations(update.view, effect.value.diffResult, this.side);
                         this.gutter = buildGutter(update.view, this.decorations);
                         return;
                     }
+                }
+                if (tr.annotation(manualRefresh)) {
+                    this.decorations = updateLineHeights(update.view, this.decorations, this.side);
                 }
             }
             if (this.decorations !== Decoration.none && update.docChanged) {
@@ -83,15 +99,16 @@ function createDiffPlugin(side) {
                     for (let i = startLine; i <= endLine; i++) {
                         const line = update.state.doc.line(i);
                         dirtyDecos.push(Decoration.line({ class: "line-dirty" }).range(line.from));
+                        lineVars.containsDirty = true;
                     }
                 });
 
                 if (dirtyDecos.length) {
                     this.decorations = this.decorations.update({ add: dirtyDecos });
-                    this.gutter = buildGutter(update.view, this.decorations);
                 }
+
             }
-            if (update.docChanged || update.viewportChanged) {
+            if (update.docChanged) {
                 this.gutter = buildGutter(update.view, this.decorations);
             }
         }
@@ -110,7 +127,13 @@ function buildDecorations(view, diffResult, side) {
     const builder = new RangeSetBuilder();
     const docLineCount = view.state.doc.lines;
 
+    const calcLine = view.dom.querySelectorAll(".cm-line")[0];
+    const lineWidth = calcLine.getBoundingClientRect().width
+                      - (parseFloat(getComputedStyle(calcLine).paddingLeft)
+                      + parseFloat(getComputedStyle(calcLine).paddingRight));
+
     if (!diffResult) return Decoration.none;
+    if (lineVars.recalculateHeight) lineVars.heightList = [];
 
     for (let i = 0; i < diffResult.length; i++) {
         // Get Current line & line number
@@ -126,6 +149,13 @@ function buildDecorations(view, diffResult, side) {
         } else if (line.status === "changed") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-inserted" }));
         }
+
+        // Set Line Height
+        if (lineVars.recalculateHeight) {
+            const maxLength = Math.max(diffResult[i].lineA.length, diffResult[i].lineB.length);
+            lineVars.heightList.push(getNaturalLineHeight(lineWidth, maxLength));
+        }
+        builder.add(lineNum.from, lineNum.from, Decoration.line({ class: addClass(lineVars.heightList[i]) }));
 
         // Mark changes w/ word diff
         if (line.status === "changed") {
@@ -143,7 +173,10 @@ function buildDecorations(view, diffResult, side) {
             }
         }
     }
-
+    lineVars.recalculateHeight = false;
+    side === "left" ? lineVars.pendingUpdateLeft = false : lineVars.pendingUpdateRight = false;
+    lineVars.containsDirty = false;
+    
     return builder.finish();
 }
 
@@ -174,6 +207,99 @@ function buildGutter(view, decorations) {
     return builder.finish();
 }
 
+export function getNaturalLineHeight(lineWidth, textLength) {
+    return Math.max(lineVars.lineHeight, lineVars.lineHeight * Math.ceil((lineVars.charWidth * textLength) / lineWidth));
+}
+
+const definedLineHeights = new Set();
+function addClass(height) {
+    const className = `lh${height.toString().replace('.', '-')}`;
+
+    if (!definedLineHeights.has(className)) {
+        const style = document.createElement("style");
+        style.id = className;
+        style.textContent = `.${className} { min-height: ${height}px; }`;
+        document.head.appendChild(style);
+        definedLineHeights.add(className);
+    }
+
+    return className;
+}
+
+function recalculateLineHeights() {
+    const lDoc = window.leftEditor.state.doc;
+    const rDoc = window.rightEditor.state.doc;
+
+    const calcLine = window.leftEditor.dom.querySelectorAll(".cm-line")[0];
+    const lineWidth = calcLine.getBoundingClientRect().width
+                      - (parseFloat(getComputedStyle(calcLine).paddingLeft)
+                      + parseFloat(getComputedStyle(calcLine).paddingRight));
+
+    const currentHeights = []
+
+    for (let i = 0; i < lDoc.lines; i++) {
+        const maxLength = Math.max(lDoc.line(i + 1).length, rDoc.line(i + 1).length);
+        currentHeights.push(getNaturalLineHeight(lineWidth, maxLength));
+
+        if (currentHeights[i] !== lineVars.heightList[i]) {
+            lineVars.pendingUpdateLeft = true;
+            lineVars.pendingUpdateRight = true;
+        }    
+    }
+
+    lineVars.heightList = currentHeights;
+    lineVars.recalculateHeight = false;
+
+    return lineVars.pendingUpdateLeft && lineVars.pendingUpdateRight
+}
+
+
+function updateLineHeights(view, decorations, side) {
+    const builder = new RangeSetBuilder();
+
+    decorations.between(0, view.state.doc.length, (from, to, deco) => {
+        // Preserve all non-lhXXX decorations
+        const className = deco.spec.class;
+        if (!className || !className.startsWith("lh")) {
+            builder.add(from, to, deco);
+            return;
+        }
+
+        const lineIndex = view.state.doc.lineAt(from).number - 1;
+        const newClass = addClass(lineVars.heightList[lineIndex])
+
+        if (newClass !== className) {
+            builder.add(from, from, Decoration.line({ class: newClass }));
+        } else {
+            builder.add(from, to, deco); // Keep existing if same height
+        }
+    });
+    side === "left" ? lineVars.pendingUpdateLeft = false : lineVars.pendingUpdateRight = false;
+    return builder.finish();
+}
+/*
+function syncActiveLine(fromView, toView) {
+    return EditorView.updateListener.of(update => {
+        if (!update.selectionSet || fromView.decorations === Decoration.none) return;
+
+        const line = fromView.state.doc.lineAt(update.state.selection.main.head).number;
+
+        const maxLine = toView.state.doc.lines;
+        const safeLine = Math.min(line, maxLine);
+        const linePos = toView.state.doc.line(safeLine).from;
+
+        const currentLine = toView.state.doc.lineAt(toView.state.selection.main.head).number;
+        if (safeLine !== currentLine) {
+            toView.dispatch({
+                selection: { anchor: linePos },
+                scrollIntoView: true
+            });
+        }
+    });
+}*/
+
+
+
 export const leftDiffPlugin = createDiffPlugin("left");
 export const rightDiffPlugin = createDiffPlugin("right");
 
@@ -182,18 +308,45 @@ const disableDropExtension = EditorView.domEventHandlers({
   drop: (event) => { event.preventDefault(); return true; }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    // Setup CM Editors
+    window.leftEditor = new EditorView({
+        doc: "",
+        extensions: [basicSetup, EditorView.lineWrapping, leftDiffPlugin, disableDropExtension],
+        parent: document.getElementById("left-container")
+    })
 
-// Setup CM Editors
-window.leftEditor = new EditorView({
-    doc: "",
-    extensions: [basicSetup, EditorView.lineWrapping, leftDiffPlugin, disableDropExtension],
-    parent: document.getElementById("left-container")
-})
+    window.rightEditor = new EditorView({
+        doc: "",
+        extensions: [basicSetup, EditorView.lineWrapping, rightDiffPlugin, disableDropExtension],
+        parent: document.getElementById("right-container")
+    })
 
-window.rightEditor = new EditorView({
-    doc: "",
-    extensions: [basicSetup, EditorView.lineWrapping, rightDiffPlugin, disableDropExtension],
-    parent: document.getElementById("right-container")
-})
+    lineVars.charWidth = document.querySelector(".gutter-null").getBoundingClientRect().width
+    lineVars.lineHeight = parseFloat(getComputedStyle(document.querySelector('.cm-line')).lineHeight);
+    /*
+    window.leftEditor.dispatch({
+        effects: StateEffect.appendConfig.of([syncActiveLine(window.leftEditor, window.rightEditor)])
+    });
 
-//
+    window.rightEditor.dispatch({
+        effects: StateEffect.appendConfig.of([syncActiveLine(window.rightEditor, window.leftEditor)])
+    });*/
+
+    let resizeTimeout = null;
+    let leftPlugin = window.leftEditor.plugin(leftDiffPlugin)
+    window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+
+        if (!lineVars.containsDirty && leftPlugin && leftPlugin.decorations !== Decoration.none) {
+            resizeTimeout = setTimeout(() => {
+                lineVars.recalculateHeight = true;
+                if (recalculateLineHeights()) {
+                    window.leftEditor.dispatch({ annotations: manualRefresh.of(true) });
+                    window.rightEditor.dispatch({ annotations: manualRefresh.of(true) });
+                }
+            }, 0);
+        }
+    });
+
+});
