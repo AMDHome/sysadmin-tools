@@ -277,6 +277,19 @@ function updateLineHeights(view, decorations, side) {
     side === "left" ? lineVars.pendingUpdateLeft = false : lineVars.pendingUpdateRight = false;
     return builder.finish();
 }
+
+export function toggleLineWrapping(editor, state) {
+    const newExtensions = [
+        basicSetup,
+        state ? EditorView.lineWrapping : [],
+        leftDiffPlugin,
+        disableDropExtension
+    ];
+
+    editor.dispatch({
+        effects: StateEffect.reconfigure.of(newExtensions)
+    });
+}
 /*
 function syncActiveLine(fromView, toView) {
     return EditorView.updateListener.of(update => {

@@ -38,12 +38,28 @@
                     <div id="sidebar-start">
                         <div id="settings" class="sidebar-containers">
                             <label class="sidebar-labels">Settings</label>
-                            <div class="settings-option">
-                                <span>Spellcheck (Beta)</span>
-                                <label class="settings-toggle">
-                                    <input type="checkbox" id="spellcheck-toggle">
-                                    <span class="slider"></span>
-                                </label>
+                            <div id="settings-box">
+                                <div class="settings-option">
+                                    <span>Spellcheck (Beta)</span>
+                                    <label class="settings-toggle">
+                                        <input type="checkbox" id="spellcheck-toggle">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-option">
+                                    <span>Line Wrapping</span>
+                                    <label class="settings-toggle">
+                                        <input type="checkbox" id="linewrap-toggle" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-option">
+                                    <span>Intereditor Gap</span>
+                                    <label class="settings-toggle">
+                                        <input type="checkbox" id="gap-toggle" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div id="tools" class="sidebar-containers">
@@ -149,19 +165,21 @@
                         <div id="scrollbar-spacer"></div>
                     </div>
                     <div id="editor-textbox">
-                        <div id="left-editor" class="editor">
-                            <div id="left-container" class="cm-instance">
-                                <div class="drop-overlay" id="overlay-left">
-                                    <span class="material-symbols-outlined icons48">file_open</span>
-                                    <span>Drop files to upload.</span>
+                        <div id="editor-inner">
+                            <div id="left-editor" class="editor">
+                                <div id="left-container" class="cm-instance">
+                                    <div class="drop-overlay" id="overlay-left">
+                                        <span class="material-symbols-outlined icons48">file_open</span>
+                                        <span>Drop files to upload.</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div id="right-editor" class="editor">
-                            <div id="right-container" class="cm-instance">
-                                <div class="drop-overlay" id="overlay-right">
-                                    <span class="material-symbols-outlined icons48">file_open</span>
-                                    <span>Drop files to upload.</span>
+                            <div id="right-editor" class="editor">
+                                <div id="right-container" class="cm-instance">
+                                    <div class="drop-overlay" id="overlay-right">
+                                        <span class="material-symbols-outlined icons48">file_open</span>
+                                        <span>Drop files to upload.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

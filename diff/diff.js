@@ -1,5 +1,5 @@
 import { patienceDiff } from './patienceDiff.js';
-import { setDiffEffect, rightDiffPlugin, leftDiffPlugin } from './codemirror.js';
+import { setDiffEffect, rightDiffPlugin, leftDiffPlugin, toggleLineWrapping } from './codemirror.js';
 import { compareTwoStrings } from "https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/+esm";
 
 function balanceBlock(removedLines, insertedLines, removedIndex, insertedIndex) {
@@ -437,7 +437,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let hideTimeout = null;
     document.getElementById("spellcheck-toggle").addEventListener("change", function () {
         const state = this.checked ? true : false;
-        const active = document.activeElement;
 
         window.leftEditor.contentDOM.setAttribute("spellcheck", state);
         window.rightEditor.contentDOM.setAttribute("spellcheck", state);
@@ -452,6 +451,36 @@ document.addEventListener("DOMContentLoaded", () => {
             if (hideTimeout) clearTimeout(hideTimeout);
             hideTimeout = null;
             message.classList.add('hidden-message');
+        }
+    });
+
+    document.getElementById("linewrap-toggle").addEventListener("change", function () {
+        const state = this.checked ? true : false;
+        toggleLineWrapping(window.leftEditor, state);
+        toggleLineWrapping(window.rightEditor, state);
+    });
+
+    document.getElementById("gap-toggle").addEventListener("change", function () {
+        document.getElementById("editor-inner").classList.toggle("nogap", !this.checked);
+        document.getElementById("editor-menus").style.gap = this.checked ? "" : "4px";
+        document.getElementById("scrollbar-spacer").style.marginLeft = this.checked ? "" : "-4px";
+        document.querySelectorAll(".cm-instance").forEach(el => el.style.border = this.checked ? "" : "none");
+        document.querySelector("#right-container .cm-gutters").style.borderRadius = this.checked ? "" : "0";
+
+        if (this.checked) {
+            document.querySelectorAll(".no-gap-style").forEach(el => el.remove());
+        } else {
+            // Add cm-focused outline suppressor
+            const style1 = document.createElement("style");
+            style1.className = "no-gap-style";
+            style1.textContent = `.cm-editor.cm-focused { outline: none !important; }`;
+            document.head.appendChild(style1);
+
+            // Add outline to editor-inner if it has a focused cm-editor
+            const style2 = document.createElement("style");
+            style2.className = "no-gap-style";
+            style2.textContent = `#editor-inner:has(.cm-focused) { border: 1px solid #aaa; }`;
+            document.head.appendChild(style2);
         }
     });
 
