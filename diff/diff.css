@@ -160,11 +160,16 @@
 }
 
 #sidebar {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 204px;
-    overflow: hidden;
     flex-shrink: 0;
+}
+
+#sidebar-padding {
+    height: 69px;
+    transition: height 0.3s ease;
 }
 
 #tool-content {
@@ -177,27 +182,20 @@
     min-width: 0;
 }
 
-#sidebar-header {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    height: 69px;
-}
-
 #sidebar-messages {
     position: absolute;
-    word-wrap: break-word;
     transition: opacity 0.4s ease, transform 0.4s ease;
     opacity: 1;
-    background-color: #22222222;
+    background-color: #D5D5D5F9;
     border-radius: 10px;
     padding: 5px 10px 25px;
     box-sizing: border-box;
     transform: translateY(calc(0% + 21px));
-    z-index: -1;
+    z-index: 0;
+    width: 100%;
 }
 
-.hidden-message{
+.hidden-message {
     opacity: 0 !important;
     transform: translateY(100%) !important;
 }
@@ -212,6 +210,8 @@
     background-color: #f9fafa;
     border-radius: 10px;
     padding: 10px 6px;
+    z-index: 2;
+    overflow: auto;
 }
 
 #sidebar label {
@@ -228,7 +228,7 @@
 #sidebar-start {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
 }
 
 .sidebar-containers {
@@ -239,6 +239,7 @@
 .sticky-buttons {
     display: flex;
     flex-direction: column;
+    padding-top: 16px;
     gap: 8px;
 }
 
@@ -631,5 +632,25 @@ button.run-diff:hover {
 @media print {
     #nav, #sidebar, .menu-buttons, .editor-menu-buttons {
         display: none;
+    }
+}
+
+@media (max-height: 768px) {
+    #sidebar-padding {
+        height: 0px;
+        transition: height 0.3s ease;
+    }
+
+    #sidebar-messages {
+        padding: 4px 10px 4px 25px;
+        transform: translateX(calc(100% - 18px));
+        line-height: 18px;
+        width: max-content;
+        max-width: none;
+        align-self: flex-end;
+    }
+
+    .hidden-message {
+        transform: translateX(0%) !important;
     }
 }
