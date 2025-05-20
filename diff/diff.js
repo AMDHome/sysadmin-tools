@@ -207,7 +207,11 @@ function showCheckMark(buttonId) {
     }, 1000);
 }
 
-function setEditorContent(leftText = null, rightText = null, diffDeco = null, suppliedDeco = true) {
+
+// Set diffDeco to null to clear decorations
+// Set diffDeco to false to make keep existing decorations
+// Set diffDeco to a diff array to reset decorations
+function setEditorContent(leftText = null, rightText = null, diffDeco = false) {
     // Set text content
     if (leftText !== null) {
         window.leftEditor.dispatch({
@@ -222,7 +226,7 @@ function setEditorContent(leftText = null, rightText = null, diffDeco = null, su
     }
 
     // Then apply diff decorations
-    if (suppliedDeco) {
+    if (diffDeco !== false) {
         window.leftEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
         window.rightEditor.dispatch({ effects: setDiffEffect.of({ diffResult: diffDeco }) });
     }
@@ -313,11 +317,11 @@ let rightFile = "";
 function loadFile(e, button) {
     if (button === "left-upload") {
         leftFile = e.target.result;
-        setEditorContent(leftFile, null, null, false);
+        setEditorContent(leftFile, null);
         document.getElementById("left-reload").classList.remove("hiddenX");
     } else if (button === "right-upload") {
         rightFile = e.target.result;
-        setEditorContent(null, rightFile, null, false);
+        setEditorContent(null, rightFile);
         document.getElementById("right-reload").classList.remove("hiddenX");
     }
     requestAnimationFrame(() => {
@@ -328,27 +332,27 @@ function loadFile(e, button) {
 
 function reloadFile(side = null) {
     if (side === "left") {
-        setEditorContent(leftFile, null, null, false);
+        setEditorContent(leftFile, null);
     } else if (side === "right") {
-        setEditorContent(null, rightFile, null, false);
+        setEditorContent(null, rightFile);
     } else {
-        setEditorContent(leftFile, rightFile, null, false);
+        setEditorContent(leftFile, rightFile);
     }
 }
 
 function clearFile(side = null) {
     if (side === "left") {
         leftFile = "";
-        setEditorContent(leftFile, null, null, false);
+        setEditorContent(leftFile, null);
         document.getElementById("left-reload").classList.add("hiddenX");
     } else if (side === "right") {
         rightFile = "";
-        setEditorContent(null, rightFile, null, false);
+        setEditorContent(null, rightFile);
         document.getElementById("right-reload").classList.add("hiddenX");
     } else {
         leftFile = "";
         rightFile = "";
-        setEditorContent(leftFile, rightFile, null, false);
+        setEditorContent(leftFile, rightFile, null);
         document.getElementById("left-reload").classList.add("hiddenX");
         document.getElementById("right-reload").classList.add("hiddenX");
     }
@@ -430,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
         button.addEventListener('click', () => {
             const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
             const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
-            setEditorContent(leftDoc, rightDoc);
+            setEditorContent(leftDoc, rightDoc, null);
         });
     });
 
