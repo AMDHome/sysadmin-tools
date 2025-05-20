@@ -56,12 +56,13 @@ export const manualRefresh = Annotation.define();
 export const setDiffEffect = StateEffect.define();
 export const lineVars = {
     recalculateHeight: false,
-    pendingUpdateLeft: false,
-    pendingUpdateRight: false,
+    pendingLineHeightUpdate: { l: false, r: false },
+    updateActiveLine: true,
     heightList: [],
     charWidth: 0,
     lineHeight: 0,
-    containsDirty: false
+    isDecorated: false,
+    isDirty: false
 };
 
 function createDiffPlugin(side) {
@@ -76,9 +77,10 @@ function createDiffPlugin(side) {
                 for (const effect of (tr.effects || [])) {
                     if (effect.is(setDiffEffect)) {
                         this.decorations = Decoration.none;
-                        if (!lineVars.pendingUpdateLeft && !lineVars.pendingUpdateRight)
-                            lineVars.recalculateHeight = lineVars.pendingUpdateLeft = lineVars.pendingUpdateRight = true;
+                        if (!lineVars.pendingLineHeightUpdate.l && !lineVars.pendingLineHeightUpdate.r)
+                            lineVars.recalculateHeight = lineVars.pendingLineHeightUpdate.l = lineVars.pendingLineHeightUpdate.r = true;
                         this.decorations = buildDecorations(update.view, effect.value.diffResult, this.side);
+                        lineVars.isDecorated = this.decorations === Decoration.none ? false : true;
                         this.gutter = buildGutter(update.view, this.decorations);
                         return;
                     }
@@ -99,7 +101,7 @@ function createDiffPlugin(side) {
                     for (let i = startLine; i <= endLine; i++) {
                         const line = update.state.doc.line(i);
                         dirtyDecos.push(Decoration.line({ class: "line-dirty" }).range(line.from));
-                        lineVars.containsDirty = true;
+                        lineVars.isDirty = true;
                     }
                 });
 
@@ -174,8 +176,8 @@ function buildDecorations(view, diffResult, side) {
         }
     }
     lineVars.recalculateHeight = false;
-    side === "left" ? lineVars.pendingUpdateLeft = false : lineVars.pendingUpdateRight = false;
-    lineVars.containsDirty = false;
+    side === "left" ? lineVars.pendingLineHeightUpdate.l = false : lineVars.pendingLineHeightUpdate.r = false;
+    lineVars.isDirty = false;
     
     return builder.finish();
 }
@@ -241,16 +243,14 @@ function recalculateLineHeights() {
         const maxLength = Math.max(lDoc.line(i + 1).length, rDoc.line(i + 1).length);
         currentHeights.push(getNaturalLineHeight(lineWidth, maxLength));
 
-        if (currentHeights[i] !== lineVars.heightList[i]) {
-            lineVars.pendingUpdateLeft = true;
-            lineVars.pendingUpdateRight = true;
-        }    
+        if (currentHeights[i] !== lineVars.heightList[i])
+            lineVars.pendingLineHeightUpdate.l = lineVars.pendingLineHeightUpdate.r = true;
     }
 
     lineVars.heightList = currentHeights;
     lineVars.recalculateHeight = false;
 
-    return lineVars.pendingUpdateLeft && lineVars.pendingUpdateRight
+    return lineVars.pendingLineHeightUpdate.l && lineVars.pendingLineHeightUpdate.r
 }
 
 
@@ -274,7 +274,7 @@ function updateLineHeights(view, decorations, side) {
             builder.add(from, to, deco); // Keep existing if same height
         }
     });
-    side === "left" ? lineVars.pendingUpdateLeft = false : lineVars.pendingUpdateRight = false;
+    side === "left" ? lineVars.pendingLineHeightUpdate.l = false : lineVars.pendingLineHeightUpdate.r = false;
     return builder.finish();
 }
 
