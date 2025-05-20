@@ -290,10 +290,11 @@ export function toggleLineWrapping(editor, state) {
         effects: StateEffect.reconfigure.of(newExtensions)
     });
 }
-/*
-function syncActiveLine(fromView, toView) {
+
+function syncActiveLine(fromView, toView, fromPlugin) {
     return EditorView.updateListener.of(update => {
-        if (!update.selectionSet || fromView.decorations === Decoration.none) return;
+        if (!update.selectionSet || lineVars.isDirty || !lineVars.isDecorated || 
+            update.transactions.some(tr => tr.docChanged)) return;
 
         const line = fromView.state.doc.lineAt(update.state.selection.main.head).number;
 
@@ -309,9 +310,7 @@ function syncActiveLine(fromView, toView) {
             });
         }
     });
-}*/
-
-
+}
 
 export const leftDiffPlugin = createDiffPlugin("left");
 export const rightDiffPlugin = createDiffPlugin("right");
@@ -337,21 +336,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     lineVars.charWidth = document.querySelector(".gutter-null").getBoundingClientRect().width
     lineVars.lineHeight = parseFloat(getComputedStyle(document.querySelector('.cm-line')).lineHeight);
-    /*
+    
     window.leftEditor.dispatch({
-        effects: StateEffect.appendConfig.of([syncActiveLine(window.leftEditor, window.rightEditor)])
+        effects: StateEffect.appendConfig.of([syncActiveLine(window.leftEditor, window.rightEditor, leftDiffPlugin)])
     });
 
     window.rightEditor.dispatch({
-        effects: StateEffect.appendConfig.of([syncActiveLine(window.rightEditor, window.leftEditor)])
-    });*/
+        effects: StateEffect.appendConfig.of([syncActiveLine(window.rightEditor, window.leftEditor, rightDiffPlugin)])
+    });
 
     let resizeTimeout = null;
     let leftPlugin = window.leftEditor.plugin(leftDiffPlugin)
     window.addEventListener("resize", () => {
         clearTimeout(resizeTimeout);
 
-        if (!lineVars.containsDirty && leftPlugin && leftPlugin.decorations !== Decoration.none) {
+        if (!lineVars.isDirty && leftPlugin && leftPlugin.decorations !== Decoration.none) {
             resizeTimeout = setTimeout(() => {
                 lineVars.recalculateHeight = true;
                 if (recalculateLineHeights()) {
