@@ -576,6 +576,10 @@ button.run-diff:hover {
     font-family: monospace;
 }
 
+.line-newblock, div.cm-gutterElement:has(.gutter-line-newblock) {
+    border-top: 2px solid #FFF;
+}
+
 .line-deleted, div.cm-gutterElement:has(.gutter-line-deleted) {
     background-color: #FA9B9B33;
 }

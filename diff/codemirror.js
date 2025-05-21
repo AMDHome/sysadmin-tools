@@ -36,16 +36,16 @@ const basicSetup = (() => [highlightActiveLineGutter(),
 
 // GutterMarker with line number
 class LineNumbers extends GutterMarker {
-    constructor(number, color = null) {
+    constructor(number, classList = []) {
         super();
         this.number = number;
-        this.color = color;
+        this.classList = classList
     }
 
     toDOM() {
         const span = document.createElement("span");
         span.textContent = this.number;
-        span.classList.add(this.color);
+        span.classList.add(...this.classList);
         return span;
     }
 }
@@ -148,8 +148,10 @@ function buildDecorations(view, diffResult, side) {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-padding" : "line-inserted" }));
         } else if (line.status === "removed") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-padding" }));
-        } else if (line.status === "changed") {
+        } else if (line.status === "changed" || line.status === "cont") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-inserted" }));
+            if (diffResult[i - 1].status === "inserted")
+                builder.add(lineNum.from, lineNum.from, Decoration.line({ class: "line-newblock" }));
         }
 
         // Set Line Height
@@ -192,18 +194,23 @@ function buildGutter(view, decorations) {
         let isPadded = false;
         let isDirty = false;
         let lineColor = null;
+        let classList = [];
 
         decorations.between(line.from, line.to, (from, to, deco) => {
             if (deco.spec.class === "line-padding") isPadded = true;
             if (deco.spec.class === "line-inserted" || deco.spec.class === "line-deleted") lineColor = deco.spec.class;
+            if (deco.spec.class === "line-newblock") classList.push("gutter-" + deco.spec.class);
             if (deco.spec.class === "line-dirty") {
                 isDirty = true;
                 lineColor = deco.spec.class;
             }
         });
 
-        if (!isPadded && !isDirty)  builder.add(line.from, line.from, new LineNumbers(count++, "gutter-" + lineColor));
-        if (isDirty)  builder.add(line.from, line.from, new LineNumbers(count++, "gutter-line-dirty"));
+        if (!isPadded && !isDirty) classList.push("gutter-" + lineColor)
+        if (isDirty) classList.push("gutter-line-dirty")
+
+        if (classList.length > 0)
+            builder.add(line.from, line.from, new LineNumbers(count++, classList));
     }
 
     return builder.finish();
