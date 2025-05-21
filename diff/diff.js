@@ -2,57 +2,145 @@ import { patienceDiff } from './patienceDiff.js';
 import { setDiffEffect, rightDiffPlugin, leftDiffPlugin, toggleLineWrapping } from './codemirror.js';
 import { compareTwoStrings } from "https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/+esm";
 
+function findMaxScore(matrix, highThreshold = 0.6, minThreshold = 0.3) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+
+    let dp = new Map(); // key: lastCol (or null), value: [sum, highCount, path]
+
+    // First row: allow selecting any col or skipping
+    dp.set(null, [0, 0, [null]]);
+    for (let col = 0; col < cols; col++) {
+        const rawVal = matrix[0][col];
+        const val = rawVal < minThreshold ? 0 : rawVal;
+        dp.set(col, [val, val >= highThreshold ? 1 : 0, [col]]);
+    }
+
+    for (let row = 1; row < rows; row++) {
+        const newDp = new Map();
+
+        for (let col = 0; col < cols; col++) {
+            const rawVal = matrix[row][col];
+            const val = rawVal < minThreshold ? 0 : rawVal;
+
+            let best = null;
+
+            for (const [prevCol, [sum, highCount, path]] of dp.entries()) {
+                if (prevCol === null || prevCol < col) {
+                    const newSum = sum + val;
+                    const newHigh = highCount + (val >= highThreshold ? 1 : 0);
+                    const newPath = [...path, col];
+
+                    if (
+                        !best ||
+                        newSum > best[0] ||
+                        (newSum === best[0] && newHigh > best[1])
+                    ) {
+                        best = [newSum, newHigh, newPath];
+                    }
+                }
+            }
+
+            if (best) newDp.set(col, best);
+        }
+
+        // Also consider skipping this row
+        for (const [prevCol, [sum, highCount, path]] of dp.entries()) {
+            const newPath = [...path, null];
+            if (!newDp.has(prevCol) || newDp.get(prevCol)[0] < sum) {
+                newDp.set(prevCol, [sum, highCount, newPath]);
+            }
+        }
+
+        dp = newDp;
+    }
+
+    // Final result with rounding for fairness
+    let bestOverall = null;
+    for (const result of dp.values()) {
+        const [sum, highCount, path] = result;
+        const roundedSum = Math.round(sum * 1e5) / 1e5;
+
+        if (
+            !bestOverall ||
+            roundedSum > bestOverall[0] ||
+            (roundedSum === bestOverall[0] && highCount > bestOverall[1])
+        ) {
+            bestOverall = [roundedSum, highCount, path];
+        }
+    }
+
+    return bestOverall ? bestOverall[2] : [];
+}
+
+
+
 function balanceBlock(removedLines, insertedLines, removedIndex, insertedIndex) {
-    let lastMatchedIndex = -1; // to keep B in order
-    const usedBIndexes = new Set();
-    const similarL2R = [];
     const balanced = [];
+    const scores = [];
 
     // Attempt to pair each removed lines
     removedLines.forEach((lineA, indexA) => {
-        let bestScore = 0;
-        let bestIndex = -1;
-
-        for (let i = lastMatchedIndex + 1; i < insertedLines.length; i++) {
-            if (usedBIndexes.has(i)) continue;
-
-            const score = compareTwoStrings(lineA.trim(), insertedLines[i].trim());
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestIndex = i;
-            }
+        let lineScore = [];
+        for (let i = 0; i < insertedLines.length; i++) {
+            lineScore.push(compareTwoStrings(lineA.trim(), insertedLines[i].trim()));
         }
 
-        if (bestScore > 0.55 && bestIndex !== -1) {
-            usedBIndexes.add(bestIndex);
-            lastMatchedIndex = bestIndex;
-            similarL2R.push({ aIndex: indexA + removedIndex, bIndex: bestIndex + insertedIndex,
-                              status: lineA === insertedLines[bestIndex] ? 'identical' : 'changed', score: bestScore,
-                              lineA: lineA, lineB: insertedLines[bestIndex] });
-        } else {
-            similarL2R.push({ aIndex: indexA + removedIndex, bIndex: -1, status: 'removed', score: bestScore,
-                              lineA: lineA, lineB: '' });
-        }
+        scores.push(lineScore)
     });
 
-    // Add back in unpaired inserted Lines
-    let nextB = insertedIndex;
-    for (let i = 0; i < similarL2R.length; i++) {
-        if (similarL2R[i].bIndex != -1 && similarL2R[i].bIndex > nextB) {
-            for (;similarL2R[i].bIndex > nextB; nextB++) {
-                balanced.push({ aIndex: -1, bIndex: nextB, status: 'inserted', 
-                              lineA: "", lineB: insertedLines[nextB - insertedIndex] });
+    const result = findMaxScore(scores);
+    function nextNonNullPair(a) {
+        for (; a < result.length; a++) {
+            if (result[a] !== null) return a;
+        }
+        return -1;
+    }
+    
+    let lastA = -1
+    let nextB = 0;
+    for (let i = 0; i < result.length; i++) {
+        if (result[i] === null) {
+            const nnIdx = nextNonNullPair(i);
+
+            if (nnIdx == -1) {
+                for (; i < result.length; i++) {
+                    balanced.push({ aIndex: i + removedIndex, bIndex: -1, status: 'removed',
+                                    lineA: removedLines[i], lineB: "" });
+                }
+            } else {
+                for (; i < nnIdx; i++) {
+                    if (nextB == result[nnIdx]) {
+                        balanced.push({ aIndex: i + removedIndex, bIndex: -1, status: 'removed',
+                                        lineA: removedLines[i], lineB: "" });
+                    } else {
+                        balanced.push({ aIndex: i + removedIndex, bIndex: nextB + insertedIndex, status: 'cont',
+                                        lineA: removedLines[i], lineB: insertedLines[nextB] });
+                        nextB++;
+                    }
+                }
+                i--;
+            }
+        } else {
+            if (nextB < result[i]) {
+                for (; nextB < result[i]; nextB++) {
+                    balanced.push({ aIndex: -1, bIndex: nextB + insertedIndex, status: 'inserted',
+                                    lineA: "", lineB: insertedLines[nextB] });
+                }
+            }
+
+            if (nextB == result[i]) {
+                balanced.push({ aIndex: i + removedIndex, bIndex: nextB + insertedIndex, 
+                                status: removedLines[i] === insertedLines[nextB] ? 'identical' : 'changed',
+                                lineA: removedLines[i], lineB: insertedLines[nextB] });
+                nextB++;
             }
         }
-        balanced.push(similarL2R[i]);
-        if (similarL2R[i].bIndex === nextB) nextB = nextB + 1;
     }
 
-    // Add back in inserted lines after the last removed line
-    for (let j = nextB - insertedIndex; j < insertedLines.length; j++) {
-        balanced.push({ aIndex: -1, bIndex: nextB, status: 'inserted', lineA: "", lineB: insertedLines[nextB - insertedIndex] });
-        nextB++;
+    for (; nextB < insertedLines.length; nextB++) {
+        balanced.push({ aIndex: -1, bIndex: nextB + insertedIndex, status: 'inserted', 
+                        lineA: "", lineB: insertedLines[nextB]});
     }
 
     return balanced;
