@@ -10,7 +10,7 @@ import { history, defaultKeymap, historyKeymap }
 import { highlightSelectionMatches, searchKeymap }
         from "https://cdn.jsdelivr.net/npm/@codemirror/search@6.5.10/+esm";
 import { lintKeymap } from "https://cdn.jsdelivr.net/npm/@codemirror/lint@6.8.5/+esm";
-import { diffWordsWithSpace } from "https://cdn.jsdelivr.net/npm/diff@7.0.0/+esm";
+import { diffWordsWithSpace } from "https://cdn.jsdelivr.net/npm/diff@8.0.2/+esm";
 
 // Run basic Configuration
 const basicSetup = (() => [highlightActiveLineGutter(),
@@ -125,6 +125,49 @@ function createDiffPlugin(side) {
     });
 }
 
+function mergeSmallDiffs(tokens, minLength = 3) {
+    const merged = [];
+
+    let lastAddedIdx = -1;
+    let lastRemovedIdx = -1
+
+    for (const token of tokens) {
+        if (lastAddedIdx === -1 || lastRemovedIdx === -1) {
+            merged.push(token);
+            if (token.added) lastAddedIdx = merged.length - 1;
+            if (token.removed) lastRemovedIdx = merged.length - 1;
+            continue;
+        }
+
+        if (token.value.length < minLength && !token.added && !token.removed) {
+            merged[lastAddedIdx].count += token.count;
+            merged[lastAddedIdx].value += token.value;
+            merged[lastRemovedIdx].count += token.count;
+            merged[lastRemovedIdx].value += token.value;
+            continue;
+        }
+
+        if (token.added && lastAddedIdx !== -1 && lastAddedIdx >= merged.length - 2) {
+            merged[lastAddedIdx].count += token.count;
+            merged[lastAddedIdx].value += token.value;
+            continue;
+        }
+            
+        if (token.removed && lastRemovedIdx !== -1 && lastRemovedIdx >= merged.length - 2) {
+            merged[lastRemovedIdx].count += token.count;
+            merged[lastRemovedIdx].value += token.value;
+            continue;
+        }
+
+        merged.push(token);
+        if (token.added) lastAddedIdx = merged.length - 1;
+        if (token.removed) lastRemovedIdx = merged.length - 1;
+    }
+
+    return merged;
+}
+
+
 function buildDecorations(view, diffResult, side) {
     const builder = new RangeSetBuilder();
     const docLineCount = view.state.doc.lines;
@@ -163,7 +206,7 @@ function buildDecorations(view, diffResult, side) {
 
         // Mark changes w/ word diff
         if (line.status === "changed") {
-            const diffs = diffWordsWithSpace(line.lineA, line.lineB);
+            const diffs = mergeSmallDiffs(diffWordsWithSpace(line.lineA, line.lineB));
             let pos = 0;
 
             for (const token of diffs) {
