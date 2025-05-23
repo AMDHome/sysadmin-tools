@@ -32,7 +32,7 @@
         <div id="tool">
             <div id="sidebar">
                 <div id="sidebar-padding"></div>
-                <div id="sidebar-messages" class="hidden-message">Spellcheck will be enabled<br>after clicking on the editor</div>
+                <div id="sidebar-messages" class="hidden-message">Spellcheck will be enabled after clicking on the editor</div>
                 <div id="sidebar-buttons">
                     <div id="sidebar-start">
                         <div id="settings" class="sidebar-containers">
@@ -91,38 +91,25 @@
                         <div class="sidebar-containers">
                             <label class="sidebar-labels">Editor Commands</label>
                             <div class="button-box">
-                                <button class="clear" type="button" title="Clear Text">
+                                <button id="clear" type="button" title="Clear Text">
                                     <span>Clear Editor Text</span>
                                     <span class="material-symbols-outlined icons24">delete</span>
                                 </button>
-                                <button class="reload hiddenY" id="sidebar-reload" type="button" title="Reload Files">
+                                <button class="hiddenY" id="sidebar-reload" type="button" title="Reload Files">
                                     <span>Reload Files</span>
                                     <span class="material-symbols-outlined icons24">restart_alt</span>
                                 </button>
-                                <button class="reset" type="button" title="Reset Diff">
+                                <button id="reset" type="button" title="Reset Diff">
                                     <span>Reset Diff Colors</span>
                                     <span class="material-symbols-outlined icons24">invert_colors_off</span>
                                 </button>
                             </div>
                         </div>
-                        <button class="run-diff" type="button">Run Diff</button>
+                        <button id="run-diff" type="button">Run Diff</button>
                     </div>
                 </div>
             </div>
             <div id="tool-content">
-                <div id="menu-bar">
-                    <div id="tool-menu">
-                        <div class="menu-title">
-                            <input id="title-input" type="text" placeholder="Untitled Diff">
-                        </div>
-                        <div class="menu-buttons">
-                            <button class="clear" type="button" title="Clear Text"><span class="material-symbols-outlined icons24">delete</span></button>
-                            <button class="reload hiddenX" id="menu-reload" type="button" title="Reload Files"><span class="material-symbols-outlined icons24">restart_alt</span></button>
-                            <button class="reset" type="button" title="Reset Diff"><span class="material-symbols-outlined icons24">invert_colors_off</span></button>
-                            <button class="run-diff" type="button">Run Diff</button>
-                        </div>
-                    </div>
-                </div>
                 <div id="editors">
                     <div id="editor-menus">
                         <div id="left-menu" class="editor-menu">

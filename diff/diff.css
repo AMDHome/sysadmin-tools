@@ -29,7 +29,7 @@
 
 .hidden-message {
     opacity: 0 !important;
-    transform: translateY(100%) !important;
+    transform: translate(0%, 100%) !important;
 }
 /*** hidden - End ***/
 
@@ -70,7 +70,7 @@
     display: flex;
     flex-direction: row;
     box-sizing: border-box;
-    padding: 15px;
+    padding: 6px 1px 15px 15px;
     height: 100%;
     width: 100vw;
     overflow: hidden;
@@ -87,7 +87,7 @@
 }
 
 #sidebar-padding {
-    height: 69px;
+    height: 32px;
     transition: height 0.3s ease;
 }
 
@@ -97,10 +97,13 @@
     opacity: 1;
     background-color: #D5D5D5F9;
     border-radius: 10px;
-    padding: 5px 10px 25px;
+    padding: 4px 10px 4px 25px;
     box-sizing: border-box;
-    transform: translateY(calc(0% + 21px));
-    z-index: 0;
+    transform: translate(calc(100% - 18px), 100%);
+    width: max-content;
+    max-width: none;
+    align-self: flex-end;
+    z-index: 1;
     width: 100%;
 }
 
@@ -247,10 +250,6 @@
     max-height: 40px;
 }
 
-#sidebar .run-diff {
-    width: 100%;
-}
-
 button.run-diff {
     display: block;
     margin: 0 auto;
@@ -260,6 +259,7 @@ button.run-diff {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    width: 100%;
 }
 
 button.run-diff:hover {
@@ -267,7 +267,6 @@ button.run-diff:hover {
 }
 /* UI Sidebar - End */
 
-/* UI Menu Bar - Start */
 #tool-content {
     display: flex;
     flex-direction: column;
@@ -277,99 +276,6 @@ button.run-diff:hover {
     gap: 2px;
     min-width: 0;
 }
-
-#menu-bar {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-
-#tool-menu {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    height: 35px;
-    width: 100%;
-    max-width: 100%;
-    flex-grow: 0;
-    overflow: hidden;
-    scrollbar-gutter: stable;
-}
-
-#tool-menu>.menu-title {
-    display: flex;
-    flex-direction: row;
-    gap: 1px;
-    align-items: center;
-    width: 100%;
-    flex-grow: 0;
-}
-
-#title-input {
-    font-family: var(--main-font);
-    font-size: 20px;
-    font-weight: 600;
-    background-color: #f0f0f0;
-    border: 1px solid #00000000;
-    border-radius: 4px;
-    box-sizing: border-box;
-    color: #333;
-    width: 120px;
-    min-width: 110px;
-    max-width: 100%;
-    margin-left: 1px;
-    padding: 2px 0px 2px 4px;
-    scrollbar-gutter: none;
-}
-
-#title-input:hover {
-    outline: 1px solid #ccc;
-}
-
-#title-input:focus {
-    background-color: #fff;
-    outline: 1px solid #ccc;
-}
-
-.menu-buttons  {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.menu-buttons > *:not(:last-child) {
-    margin-right: 5px;
-}
-
-.menu-buttons>button {
-    color: #333;
-    border: 1px solid #c0c0c0;
-    border-radius: 4px;
-    padding: 4.5px 5.5px;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    opacity: 1;
-    transition: background-color 0.3s, border-color 0.3s, max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
-}
-
-.menu-buttons>button:hover, .menu-title>button:hover {
-    background-color: #e0e0e0;
-    border: 1px solid #ccc !important;
-}
-
-.menu-buttons>button:active, .menu-title>button:active {
-    background-color: #d3d3d3;
-    border-color: #ccc !important;
-}
-
-#menu-reload {
-    max-width: 38px;
-}
-/* UI Menu Bar - End */
 
 /* UI Editor Menu Bar - Start */
 #editors {
@@ -616,22 +522,17 @@ button.run-diff:hover {
 }
 /* Diff Results - End */
 
-@media (max-height: 768px) {
+@media (max-height: 720px) {
     #sidebar-padding {
         height: 0px;
         transition: height 0.3s ease;
     }
 
     #sidebar-messages {
-        padding: 4px 10px 4px 25px;
-        transform: translateX(calc(100% - 18px));
-        line-height: 18px;
-        width: max-content;
-        max-width: none;
-        align-self: flex-end;
+        transform: translate(calc(100% - 18px), calc(100% - 32px));
     }
 
     .hidden-message {
-        transform: translateX(0%) !important;
+        transform: translate(0%, calc(100% - 32px)) !important;
     }
 }
