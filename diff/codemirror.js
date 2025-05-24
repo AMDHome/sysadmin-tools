@@ -193,7 +193,7 @@ function buildDecorations(view, diffResult, side) {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-padding" }));
         } else if (line.status === "changed" || line.status === "cont") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-inserted" }));
-            if (diffResult[i - 1].status === "inserted")
+            if (i && diffResult[i - 1].status === "inserted")
                 builder.add(lineNum.from, lineNum.from, Decoration.line({ class: "line-newblock" }));
         }
 

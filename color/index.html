@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSS RGBA Color Blender</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="../assets/base.css">
+    <link rel="stylesheet" href="blend.css">
     <script src="blend.js"></script>
     <script>
         fetch('../assets/nav.html')
@@ -20,73 +21,73 @@
 </head>
 <body>
     <nav id="nav"></nav> <!-- End (div class="nav") -->
-    <div class="body">
+    <div class="body fc">
         <div id="spacer-top"></div>
-        <div id="tool">
+        <div id="tool" class="fr">
             <div id="controls">
-                <div class="switches">
+                <div class="switches fr">
                     <div class="toggle-switch">
                         <button id="outputCalc" class="toggle-button active">Output</button>
                         <button id="overlayCalc" class="toggle-button">Overlay</button>
                     </div>
                     <button id="showBaseButton" class="latching-button">Show Base</button>
-                    <div id="targetAInput" class="hidden">
+                    <div id="targetAInput" class="fr hidden">
                         <span class="alpha-label">α:&nbsp;</span> 
                         <input type="text" id="targetA" class="rgbInput" min="0" max="1" step="0.01">
                     </div>
                 </div>
-                <fieldset id="base" class="inputModule">
+                <fieldset id="base" class="inputModule fr">
                     <legend>Base Color:</legend>
                     <div class="colorInput">
-                        <div class="rgb">
+                        <div class="rgb fr">
                             <label class="rgbLabel">R: <input type="number" id="baseR" class="rgbInput" min="0" max="255" value="255"></label>
                             <label class="rgbLabel">G: <input type="number" id="baseG" class="rgbInput" min="0" max="255" value="255"></label>
                             <label class="rgbLabel">B: <input type="number" id="baseB" class="rgbInput" min="0" max="255" value="255"></label>
                         </div>
-                        <label class="hexLabel">HEX:&nbsp;<input type="text" id="baseColor" class="hexInput" value="#FFFFFF" maxlength="9"></label>
+                        <label class="hexLabel fr">HEX:&nbsp;<input type="text" id="baseColor" class="hexInput" value="#FFFFFF" maxlength="9"></label>
                     </div>
                     <div id="basePreview" class="inputPreview"></div>
                 </fieldset>
-                <fieldset id="overlay" class="inputModule">
+                <fieldset id="overlay" class="inputModule fr">
                     <legend>Overlay Color:</legend>
                     <div class="colorInput">
-                        <div class="rgb">
+                        <div class="rgb fr">
                             <label class="rgbLabel">R: <input type="number" id="overlayR" class="rgbInput" min="0" max="255"></label>
                             <label class="rgbLabel">G: <input type="number" id="overlayG" class="rgbInput" min="0" max="255"></label>
                             <label class="rgbLabel">B: <input type="number" id="overlayB" class="rgbInput" min="0" max="255"></label>
                             <label class="rgbLabel">A: <input type="number" id="overlayA" class="rgbInput" min="0" max="1" step="0.01"></label>
 
                         </div>
-                        <label class="hexLabel">HEX:&nbsp;<input type="text" id="overlayColor" class="hexInput" placeholder="#rrggbb or #rrggbbaa" maxlength="9"></label>
+                        <label class="hexLabel fr">HEX:&nbsp;<input type="text" id="overlayColor" class="hexInput" placeholder="#rrggbb or #rrggbbaa" maxlength="9"></label>
                     </div>
                     <div id="overlayPreview" class="inputPreview"></div>
                 </fieldset>
-                <fieldset id="desired" class="inputModule hidden">
+                <fieldset id="desired" class="inputModule fr hidden">
                     <legend>Desired Color:</legend>
                     <div class="colorInput">
-                        <div class="rgb">
+                        <div class="rgb fr">
                             <label class="rgbLabel">R: <input type="number" id="desiredR" class="rgbInput" min="0" max="255" value="255"></label>
                             <label class="rgbLabel">G: <input type="number" id="desiredG" class="rgbInput" min="0" max="255" value="255"></label>
                             <label class="rgbLabel">B: <input type="number" id="desiredB" class="rgbInput" min="0" max="255" value="255"></label>
                         </div>
-                        <label class="hexLabel">HEX:&nbsp;<input type="text" id="desiredColor" class="hexInput" value="#FFFFFF" maxlength="9"></label>
+                        <label class="hexLabel fr">HEX:&nbsp;<input type="text" id="desiredColor" class="hexInput" value="#FFFFFF" maxlength="9"></label>
                     </div>
                     <div id="desiredPreview" class="inputPreview"></div>
                 </fieldset>
             </div>
-            <div id="output">
+            <div id="output" class="fc">
                 <div id="errorMessage" class="hiddenError"></div>
-                <div class="colorBox">
+                <div class="colorBox fc">
                     <div id="baseColorPreview" class="hiddenBasePreview"></div>
-                    <div id="outputColorPreview"></div>
+                    <div id="outputColorPreview" class="fc"></div>
                 </div>
                 <div id="outputColorTextBox">
                     <div id="outputColorOverlay">
-                        <div id="hexOutput" class="outputText">
+                        <div id="hexOutput" class="outputText fr">
                             <div id="hexOutputText" class=copyText></div>
                             <div id="hexOutputCopied" class="copiedText">Copied <i class="fa-solid fa-check"></i></div>
                         </div>
-                        <div id="RGBAOutput" class="outputText">
+                        <div id="RGBAOutput" class="outputText fr">
                             <div id="RGBAOutputText" class=copyText></div>
                             <div id="RGBAOutputCopied" class="copiedText">Copied <i class="fa-solid fa-check"></i></div>
                         </div>

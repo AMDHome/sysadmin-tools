@@ -1,5 +1,4 @@
 /* diff.css */
-
 /*** hidden - Start ***/
 .hiddenX {
     max-width: 0 !important;
@@ -57,18 +56,51 @@
     font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
 
+.icons26 {
+    font-size: 26px !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 26;
+}
+
+.icons28 {
+    font-size: 28px !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 28;
+}
+
 .icons48 {
     font-size: 72px !important;
     font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 48;
+}
+
+.stretched {
+    transform: scaleX(1.75);
 }
 /*** Icons - End */
 
 
 
 /*** UI - Start ***/
+/* NAV Overrides - Start */
+.rightNav button.run-diff {
+    height: 35px;
+    padding: 0 7px 0 14px;
+    font-size: 15px;
+    align-items: center;
+    gap: 2px;
+}
+
+.rightNav .button-box {
+    border: none;
+    padding: 0;
+}
+
+.body {
+    align-items: stretch;
+    flex-grow: 1;
+    gap: 10px;
+    overflow: hidden;
+}
+
 #tool {
-    display: flex;
-    flex-direction: row;
     box-sizing: border-box;
     padding: 6px 1px 15px 15px;
     height: 100%;
@@ -77,11 +109,10 @@
     gap: 10px;
 }
 
+
 /* UI Sidebar - Start */
 #sidebar {
     position: relative;
-    display: flex;
-    flex-direction: column;
     width: 204px;
     flex-shrink: 0;
 }
@@ -100,7 +131,6 @@
     padding: 4px 10px 4px 25px;
     box-sizing: border-box;
     transform: translate(calc(100% - 18px), 100%);
-    width: max-content;
     max-width: none;
     align-self: flex-end;
     z-index: 1;
@@ -108,8 +138,6 @@
 }
 
 #sidebar-buttons {
-    display: flex;
-    flex-direction: column;
     flex: 1;
     justify-content: space-between;
     box-sizing: border-box;
@@ -120,16 +148,7 @@
     overflow: auto;
 }
 
-#sidebar-start {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.sidebar-containers {
-    display: flex;
-    flex-direction: column;
-}
+#sidebar-start { gap: 16px; }
 
 #sidebar label {
     padding: 0 4px 1px;
@@ -143,8 +162,6 @@
 }
 
 #settings-box {
-    display: flex;
-    flex-direction: column;
     gap: 8px;
     padding: 1px 0 0 4px;
 }
@@ -207,7 +224,6 @@
 
 .button-box button {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -240,8 +256,6 @@
 
 .sticky-buttons {
     position: sticky;
-    display: flex;
-    flex-direction: column;
     padding-top: 16px;
     gap: 8px;
 }
@@ -251,25 +265,31 @@
 }
 
 button.run-diff {
-    display: block;
     margin: 0 auto;
-    padding: 10px 20px;
     background-color: #007bff;
-    color: white;
+    justify-content: center;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    height: 44px;
     width: 100%;
+    font-size: 16px;
+    line-height: 18.2px;
+    font-weight: 500;
+    gap: 4px;
 }
 
 button.run-diff:hover {
     background-color: #0056b3;
 }
+
+.button-box .run-diff span {
+    color: #FFF;
+}
 /* UI Sidebar - End */
 
+
 #tool-content {
-    display: flex;
-    flex-direction: column;
     height: 100%;
     flex: 1;
     box-sizing: border-box;
@@ -277,25 +297,20 @@ button.run-diff:hover {
     min-width: 0;
 }
 
+
 /* UI Editor Menu Bar - Start */
 #editors {
-    display: flex;
-    flex-direction: column;
     flex: 1;
     overflow:hidden;
 }
 
 #editor-menus {
-    display: flex;
-    flex-direction: row;
     width: 100%;
     box-sizing: border-box;
     gap: 10px;
 }
 
 .editor-menu {
-    display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     height: 32px;
@@ -314,8 +329,6 @@ button.run-diff:hover {
 }
 
 .editor-menu-buttons {
-    display: flex;
-    flex-direction: row;
     align-items: center;
     margin-top: 1px;
 }
@@ -379,23 +392,22 @@ button.run-diff:hover {
 }
 /* UI Editor Menu Bar - End */
 
+
 /* UI Editors - Start */
 #editor-textbox {
     width: 100%;
     height: 100%;
     overflow-x: hidden;
-    scrollbar-gutter: stable;
 }
 
 #editor-inner {
-    display: flex;
-    flex-direction: row;
     width: 100%;
     box-sizing: border-box;
     gap: 10px;
     height: 100%;
     overflow-x: hidden;
     border-radius: 5px;
+    scrollbar-gutter: stable;
 }
 
 #editor-inner.nogap {
@@ -406,8 +418,6 @@ button.run-diff:hover {
 
 .editor {
     position: relative;
-    display: flex;
-    flex-direction: column;
     flex: 1;
     min-width: 0;
     max-width: 50%;
@@ -425,8 +435,6 @@ button.run-diff:hover {
 
 .editor .drop-overlay {
     position: absolute;
-    display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     inset: 0;
@@ -471,6 +479,7 @@ button.run-diff:hover {
     box-sizing: border-box
 }
 /* UI Editors - End */
+
 
 /* Diff Results - Start */
 .word-deleted {
@@ -521,6 +530,8 @@ button.run-diff:hover {
     background-color: #9B9BA740;
 }
 /* Diff Results - End */
+
+/*** UI - End ***/
 
 @media (max-height: 720px) {
     #sidebar-padding {

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Diff Checker</title>
-    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="../assets/base.css">
     <link rel="stylesheet" href="diff.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=check,content_copy,delete,delete_forever,file_open,invert_colors_off,restart_alt,upload">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_right,check,content_copy,delete,delete_forever,file_open,invert_colors_off,restart_alt,upload">
     <script type="module" src="codemirror.js"></script>
     <script type="module" src="diff.js"></script>
     <script>
@@ -28,31 +28,31 @@
             </div>
         </noscript>
     </nav> <!-- End (div class="nav") -->
-    <div class="body">
-        <div id="tool">
-            <div id="sidebar">
+    <div class="body fr">
+        <div id="tool" class="fr">
+            <div id="sidebar" class="fc">
                 <div id="sidebar-padding"></div>
                 <div id="sidebar-messages" class="hidden-message">Spellcheck will be enabled after clicking on the editor</div>
-                <div id="sidebar-buttons">
-                    <div id="sidebar-start">
-                        <div id="settings" class="sidebar-containers">
+                <div id="sidebar-buttons" class="fc">
+                    <div id="sidebar-start" class="fc">
+                        <div id="settings" class="fc">
                             <label class="sidebar-labels">Settings</label>
-                            <div id="settings-box">
-                                <div class="settings-option">
+                            <div id="settings-box" class="fc">
+                                <div class="settings-option fr">
                                     <span>Spellcheck (Beta)</span>
                                     <label class="settings-toggle">
                                         <input type="checkbox" id="spellcheck-toggle">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
-                                <div class="settings-option">
+                                <div class="settings-option fr">
                                     <span>Line Wrapping</span>
                                     <label class="settings-toggle">
                                         <input type="checkbox" id="linewrap-toggle" checked>
                                         <span class="slider"></span>
                                     </label>
                                 </div>
-                                <div class="settings-option">
+                                <div class="settings-option fr">
                                     <span>Intereditor Gap</span>
                                     <label class="settings-toggle">
                                         <input type="checkbox" id="gap-toggle" checked>
@@ -87,7 +87,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="sticky-buttons">
+                    <div class="sticky-buttons fc">
                         <div class="sidebar-containers">
                             <label class="sidebar-labels">Editor Commands</label>
                             <div class="button-box">
@@ -105,18 +105,23 @@
                                 </button>
                             </div>
                         </div>
-                        <button id="run-diff" type="button">Run Diff</button>
+                        <div class="button-box">
+                            <button class="run-diff" type="button">
+                                <span>Run Diff</span>
+                                <span class="material-symbols-outlined icons28 stretched">arrow_right</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="tool-content">
-                <div id="editors">
-                    <div id="editor-menus">
-                        <div id="left-menu" class="editor-menu">
+            <div id="tool-content" class="fc">
+                <div id="editors" class="fc">
+                    <div id="editor-menus" class="fr">
+                        <div id="left-menu" class="editor-menu fr">
                             <div class="menu-title">
                                 <label>Original Text</label>
                             </div>
-                            <div class="editor-menu-buttons">
+                            <div class="editor-menu-buttons fr">
                                 <button id="left-clear" type="button" title="Clear Left Text"><span class="material-symbols-outlined icons20">delete_forever</span></button>
                                 <button class="hiddenX" id="left-reload" type="button" title="Reload Left File"><span class="material-symbols-outlined icons20">restart_alt</span></button>
                                 <label class="upload-btn" title="Upload File - Left">
@@ -130,11 +135,11 @@
                                 </button>
                             </div>
                         </div>
-                        <div id="right-menu" class="editor-menu">
+                        <div id="right-menu" class="editor-menu fr">
                             <div class="menu-title">
                                 <label>Changed Text</label>
                             </div>
-                            <div class="editor-menu-buttons">
+                            <div class="editor-menu-buttons fr">
                                 <button id="right-clear" type="button" title="Clear RightText"><span class="material-symbols-outlined icons20">delete_forever</span></button>
                                 <button class="hiddenX" id="right-reload" type="button" title="Reload Right File"><span class="material-symbols-outlined icons20">restart_alt</span></button>
                                 <label class="upload-btn" title="Upload File - Right">
@@ -151,18 +156,18 @@
                         <div id="scrollbar-spacer"></div>
                     </div>
                     <div id="editor-textbox">
-                        <div id="editor-inner">
-                            <div id="left-editor" class="editor">
+                        <div id="editor-inner" class="fr">
+                            <div id="left-editor" class="editor fc">
                                 <div id="left-container" class="cm-instance">
-                                    <div class="drop-overlay" id="overlay-left">
+                                    <div class="drop-overlay fc" id="overlay-left">
                                         <span class="material-symbols-outlined icons48">file_open</span>
                                         <span>Drop files to upload.</span>
                                     </div>
                                 </div>
                             </div>
-                            <div id="right-editor" class="editor">
+                            <div id="right-editor" class="editor fc">
                                 <div id="right-container" class="cm-instance">
-                                    <div class="drop-overlay" id="overlay-right">
+                                    <div class="drop-overlay fc" id="overlay-right">
                                         <span class="material-symbols-outlined icons48">file_open</span>
                                         <span>Drop files to upload.</span>
                                     </div>

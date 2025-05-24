@@ -413,7 +413,6 @@ function loadFile(e, button) {
         document.getElementById("right-reload").classList.remove("hiddenX");
     }
     requestAnimationFrame(() => {
-        document.getElementById("menu-reload").classList.remove("hiddenX");
         document.getElementById("sidebar-reload").classList.remove("hiddenY");
     });
 }
@@ -447,7 +446,6 @@ function clearFile(side = null) {
 
     if (leftFile === "" && rightFile === "") {
         requestAnimationFrame(() => {
-            document.getElementById("menu-reload").classList.add("hiddenX");
             document.getElementById("sidebar-reload").classList.add("hiddenY");
         });
     }
@@ -478,20 +476,20 @@ function setupDropZone(dropZoneId, button) {
     });
 }
 
-function resizeTitleInput(titleInput) {
-    titleInput.style.width = "120px"; // reset to baseline
-    titleInput.style.width = Math.min(
-        titleInput.parentElement.offsetWidth - 12,
-        titleInput.scrollWidth + 6      // + 4px padding +1(x2)px border
-    ) + "px";
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-    const titleInput = document.getElementById("title-input");
-    titleInput.addEventListener("input", () => resizeTitleInput(titleInput));
-    window.addEventListener("resize", () => resizeTitleInput(titleInput));
-
-    titleInput.addEventListener("keydown", (e) => { if (e.key === "Enter") titleInput.blur(); });
+    const rightNav = document.querySelector('.rightNav');
+    if (rightNav) {
+        const buttonBox = document.createElement('div');
+        buttonBox.className = 'button-box';
+        buttonBox.innerHTML = `
+            <button class="run-diff" type="button">
+                <span>Run Diff</span>
+                <span class="material-symbols-outlined icons26 stretched">arrow_right</span>
+            </button>
+        `;
+    
+        rightNav.insertBefore(buttonBox, rightNav.firstChild);
+    }
 
     document.querySelectorAll('.run-diff').forEach(button => {
         button.addEventListener('click', () => {
@@ -506,24 +504,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.querySelectorAll('.clear').forEach(button => {
-        button.addEventListener('click', () => {
-            clearFile();
-        });
-    });
+    document.getElementById("clear").addEventListener('click', () => { clearFile(); });
+    document.getElementById("sidebar-reload").addEventListener('click', () => { reloadFile(); });
 
-    document.querySelectorAll('.reload').forEach(button => {
-        button.addEventListener('click', () => {
-            reloadFile();
-        });
-    });
-
-    document.querySelectorAll('.reset').forEach(button => {
-        button.addEventListener('click', () => {
-            const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
-            const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
-            setEditorContent(leftDoc, rightDoc, null);
-        });
+    document.getElementById("reset").addEventListener('click', () => {
+        const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
+        const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
+        setEditorContent(leftDoc, rightDoc, null);
     });
 
     let hideTimeout = null;
@@ -538,7 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state) {
             message.classList.remove('hidden-message');
             if (hideTimeout) clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(() => { message.classList.add('hidden-message'); }, 7500);
+            hideTimeout = setTimeout(() => { message.classList.add('hidden-message'); }, 4000);
         } else {
             if (hideTimeout) clearTimeout(hideTimeout);
             hideTimeout = null;
@@ -619,5 +606,4 @@ document.addEventListener("DOMContentLoaded", () => {
     setupDropZone("right-container", "right-upload");
     setupCopyButton("left-copy", window.leftEditor, leftDiffPlugin);
     setupCopyButton("right-copy", window.rightEditor, rightDiffPlugin);
-    resizeTitleInput(titleInput);
 });
