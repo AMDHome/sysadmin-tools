@@ -6,7 +6,7 @@
     <title>Simple Diff Checker</title>
     <link rel="stylesheet" href="../assets/base.css">
     <link rel="stylesheet" href="diff.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_right,check,content_copy,delete,delete_forever,file_open,invert_colors_off,restart_alt,upload">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_right,check,content_copy,delete,delete_forever,file_open,invert_colors_off,keyboard_arrow_up,restart_alt,upload">
     <script type="module" src="codemirror.js"></script>
     <script type="module" src="diff.js"></script>
     <script>
@@ -160,7 +160,7 @@
                             <div id="left-editor" class="editor fc">
                                 <div id="left-container" class="cm-instance">
                                     <div class="drop-overlay fc" id="overlay-left">
-                                        <span class="material-symbols-outlined icons48">file_open</span>
+                                        <span class="material-symbols-outlined icons72">file_open</span>
                                         <span>Drop files to upload.</span>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@
                             <div id="right-editor" class="editor fc">
                                 <div id="right-container" class="cm-instance">
                                     <div class="drop-overlay fc" id="overlay-right">
-                                        <span class="material-symbols-outlined icons48">file_open</span>
+                                        <span class="material-symbols-outlined icons72">file_open</span>
                                         <span>Drop files to upload.</span>
                                     </div>
                                 </div>
@@ -179,6 +179,11 @@
             </div>
         </div>
     </div> <!-- End (div class="body") -->
+    <div id="up" class="hidden-up">
+        <button id="scrollTop" type="button" title="Scroll To Top">
+            <span class="material-symbols-outlined icons36">keyboard_arrow_up</span>
+        </button>
+    </div>
     <div class="footer"></div> <!-- End (div class="footer") -->
 </body>
 </html>

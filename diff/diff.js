@@ -476,6 +476,11 @@ function setupDropZone(dropZoneId, button) {
     });
 }
 
+function updateUpVisibility() {
+    const editors = document.getElementById('editor-inner');
+    document.getElementById('up').classList.toggle('hidden-up', editors.scrollHeight <= editors.clientHeight);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const rightNav = document.querySelector('.rightNav');
     if (rightNav) {
@@ -606,4 +611,12 @@ document.addEventListener("DOMContentLoaded", () => {
     setupDropZone("right-container", "right-upload");
     setupCopyButton("left-copy", window.leftEditor, leftDiffPlugin);
     setupCopyButton("right-copy", window.rightEditor, rightDiffPlugin);
+
+    document.getElementById('scrollTop').addEventListener('click', () => {
+        document.getElementById('editor-inner').scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    const resizeObserver = new ResizeObserver(updateUpVisibility);
+    resizeObserver.observe(document.getElementById('left-container'));
+    resizeObserver.observe(document.getElementById('right-container'));
 });
