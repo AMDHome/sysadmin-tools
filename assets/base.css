@@ -1,0 +1,78 @@
+/* base.css */
+html, body {
+    height: 100%;
+}
+
+:root {
+  --main-font: --apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+body {
+    font-family: var(--main-font);
+    font-size: 14px;
+    font-weight: 600;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    line-height: 20px;
+    display: flex;
+    flex-direction: column;
+    color: #17191C;
+}
+
+nav {
+    padding: 12px 15px;
+    width: 100%;
+    flex-grow: 0;
+    background: #fafafa;
+    box-sizing: border-box;
+}
+
+label {
+    vertical-align: baseline;
+}
+
+button {
+    font-family: var(--main-font);
+    align-items: center;
+    font-size: 14px;
+    flex-direction: row;
+}
+
+strong {
+    font-weight: 700;
+}
+
+code {
+    font-family: monospace;
+    background-color: #ccc;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.fc {
+    display: flex;
+    flex-direction: column;
+}
+
+.fr {
+    display: flex;
+    flex-direction: row;
+}
+
+.footer {
+    position: sticky;
+}
+
+#nojs { 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffeeeedd;
+    color: #f00;
+    height: 36px;
+}
