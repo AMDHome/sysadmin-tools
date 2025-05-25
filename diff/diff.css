@@ -3,6 +3,15 @@ body {
     overflow: hidden;
 }
 
+:root {
+    --line-green-light: #71D4B040;
+    --line-green-dark: #7DE1BE33;
+    --line-red-light: #FDCACA99;
+    --line-red-dark: #FA9B9B33;
+    --line-yellow-light: #F7E4A099;
+    --line-yellow-dark: #FFD34440;
+}
+
 /*** hidden - Start ***/
 .hiddenX {
     max-width: 0 !important;
@@ -40,6 +49,10 @@ body {
 .hidden-message {
     opacity: 0 !important;
     transform: translate(0%, 100%) !important;
+}
+
+.hidden-dn {
+    display: none;
 }
 /*** hidden - End ***/
 
@@ -335,13 +348,36 @@ button.run-diff:hover {
     box-sizing: border-box;
 }
 
-.editor-menu>.menu-title {
-    margin-top: 2px;
-}
-
-.editor-menu>.menu-title>label {
+.editor-menu .editor-menu-left {
+    align-items: center;
+    margin-top: 4px;
     font-size: 14px;
     font-weight: 600;
+    gap: 6px;
+}
+
+/*.editor-menu-left .menu-title { margin-top: 4px; }*/
+
+.diff-count {
+    padding: 2px 9px 2px 7.5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+#left-count {
+    color: #ad1f1f;
+    background-color: var(--line-red-light);
+}
+
+#right-count {
+    color: #006e49;
+    background-color: var(--line-green-light);
+}
+
+.dirty-count {
+    color: #886600 !important;
+    background-color: var(--line-yellow-light) !important;
+    text-decoration: line-through;
 }
 
 .editor-menu-buttons {
@@ -511,15 +547,15 @@ button.run-diff:hover {
 }
 
 .line-deleted, div.cm-gutterElement:has(.gutter-line-deleted) {
-    background-color: #FA9B9B33;
+    background-color: var(--line-red-dark);
 }
 
 .line-inserted, div.cm-gutterElement:has(.gutter-line-inserted) {
-    background-color: #7DE1BE33;
+    background-color: var(--line-green-dark);
 }
 
 .line-dirty, div.cm-gutterElement:has(.gutter-line-dirty) {
-    background-color: #FFD34440;
+    background-color: var(--line-yellow-dark);
 }
 
 .line-newblock, div.cm-gutterElement:has(.gutter-line-newblock) {
@@ -561,6 +597,7 @@ button.run-diff:hover {
 }
 
 #scrollTop {
+    color: #666;
     background-color: #F7F7F7D9;
     border: 1px solid #aaa;
     border-radius: 5px;

@@ -442,6 +442,8 @@ function clearFile(side = null) {
         setEditorContent(leftFile, rightFile, null);
         document.getElementById("left-reload").classList.add("hiddenX");
         document.getElementById("right-reload").classList.add("hiddenX");
+        document.getElementById("left-count").classList.add("hidden-dn");
+        document.getElementById("right-count").classList.add("hidden-dn");
     }
 
     if (leftFile === "" && rightFile === "") {
@@ -516,6 +518,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const leftDoc = unBalanceDocs(window.leftEditor, leftDiffPlugin).join("\n");
         const rightDoc = unBalanceDocs(window.rightEditor, rightDiffPlugin).join("\n");
         setEditorContent(leftDoc, rightDoc, null);
+        document.getElementById("left-count").classList.add("hidden-dn");
+        document.getElementById("right-count").classList.add("hidden-dn");
     });
 
     let hideTimeout = null;
@@ -582,9 +586,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    ["left-clear", "right-clear"].forEach(action => {
-        document.getElementById(action).addEventListener("click", () => {
-            clearFile(action.split("-")[0]);
+    ["left-clear", "right-clear"].forEach(side => {
+        document.getElementById(side).addEventListener("click", () => {
+            clearFile(side.split("-")[0]);
         });
     });
 

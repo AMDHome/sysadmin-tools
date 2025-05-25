@@ -62,7 +62,9 @@ export const lineVars = {
     charWidth: 0,
     lineHeight: 0,
     isDecorated: false,
-    isDirty: false
+    isDirty: false,
+    added: 0,
+    removed: 0
 };
 
 function createDiffPlugin(side) {
@@ -82,6 +84,7 @@ function createDiffPlugin(side) {
                         this.decorations = buildDecorations(update.view, effect.value.diffResult, this.side);
                         lineVars.isDecorated = this.decorations === Decoration.none ? false : true;
                         this.gutter = buildGutter(update.view, this.decorations);
+                        updateCount();
                         return;
                     }
                 }
@@ -107,6 +110,7 @@ function createDiffPlugin(side) {
 
                 if (dirtyDecos.length) {
                     this.decorations = this.decorations.update({ add: dirtyDecos });
+                    document.getElementById(this.side + "-count").classList.add("dirty-count");
                 }
 
             }
@@ -171,6 +175,7 @@ function mergeSmallDiffs(tokens, minLength = 3) {
 function buildDecorations(view, diffResult, side) {
     const builder = new RangeSetBuilder();
     const docLineCount = view.state.doc.lines;
+    let changeCount = 0
 
     const calcLine = view.dom.querySelectorAll(".cm-line")[0];
     const lineWidth = calcLine.getBoundingClientRect().width
@@ -189,11 +194,14 @@ function buildDecorations(view, diffResult, side) {
         // Mark Lines
         if(line.status === "inserted") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-padding" : "line-inserted" }));
+            if (side === "right") changeCount++;
         } else if (line.status === "removed") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-padding" }));
+            if (side === "left") changeCount++;
         } else if (line.status === "changed" || line.status === "cont") {
             builder.add(lineNum.from, lineNum.from, Decoration.line({ class: (side === "left") ? "line-deleted" : "line-inserted" }));
-            if (i && diffResult[i - 1].status === "inserted")
+            if (line.status === "cont") changeCount++;
+            if (i && (diffResult[i - 1].status === "inserted" || diffResult[i - 1].status === "removed"))
                 builder.add(lineNum.from, lineNum.from, Decoration.line({ class: "line-newblock" }));
         }
 
@@ -213,6 +221,7 @@ function buildDecorations(view, diffResult, side) {
                 const len = token.value.length;
                 if ((side === "left" && token.removed) || (side === "right" && token.added)) {
                     builder.add(lineNum.from + pos, lineNum.from + pos + len, Decoration.mark({ class: token.removed ? "word-deleted" : "word-inserted" }));
+                    changeCount++;
                     pos += len;
                 } else if (!token.added && !token.removed) {
                     pos += len;
@@ -223,6 +232,11 @@ function buildDecorations(view, diffResult, side) {
     lineVars.recalculateHeight = false;
     side === "left" ? lineVars.pendingLineHeightUpdate.l = false : lineVars.pendingLineHeightUpdate.r = false;
     lineVars.isDirty = false;
+
+    if (side === "left")
+        lineVars.removed = changeCount;
+    else
+        lineVars.added = changeCount;
     
     return builder.finish();
 }
@@ -276,6 +290,13 @@ function addClass(height) {
     }
 
     return className;
+}
+
+function updateCount() {
+    document.getElementById("left-count").textContent = "-" + lineVars.removed + " removal";
+    document.getElementById("left-count").classList.remove("dirty-count", "hidden-dn");
+    document.getElementById("right-count").textContent = "+" + lineVars.added + " addition";
+    document.getElementById("right-count").classList.remove("dirty-count", "hidden-dn");
 }
 
 function recalculateLineHeights() {
